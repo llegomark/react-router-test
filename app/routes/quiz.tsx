@@ -16,15 +16,13 @@ import { Label } from "../components/ui/label";
 import { Separator } from "../components/ui/separator";
 import { Badge } from "../components/ui/badge";
 import { Skeleton } from "../components/ui/skeleton";
-import { CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import {
     startQuizAttempt,
-    recordQuestionAttempt,
-    finalizeQuizAttempt,
-    getProgress,
     resetProgressCache,
     debugLocalStorage
 } from "../services/progressStorage";
+import { useRecordQuestionAttempt } from "../lib/quiz-mutations";
 
 export function HydrateFallback() {
     return (
@@ -95,8 +93,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
-    const questionId = formData.get("questionId") as string;
-    const selectedOption = Number(formData.get("selectedOption"));
     const categoryId = formData.get("categoryId") as string;
     const currentQuestionIndex = Number(formData.get("currentQuestionIndex"));
     const currentScore = Number(formData.get("currentScore") || 0);
@@ -109,7 +105,6 @@ export async function action({ request }: Route.ActionArgs) {
         console.error("Missing quiz attempt ID in form submission");
         return redirect(`/quiz/${categoryId}`);
     }
-
     // Calculate the new score
     const newScore = isTimeUp ? currentScore : (isCorrect ? currentScore + 1 : currentScore);
 
@@ -120,8 +115,14 @@ export async function action({ request }: Route.ActionArgs) {
     const totalQuestions = Number(formData.get("totalQuestions"));
     if (currentQuestionIndex >= totalQuestions - 1) {
         // Finalize the quiz attempt
-        finalizeQuizAttempt(quizAttemptId);
-        return redirect(`/results?score=${newScore}&total=${totalQuestions}&category=${categoryId}&attempt=${quizAttemptId}`);
+        const attemptId = formData.get("quizAttemptId") as string;
+        if (attemptId) {
+            // Finalize the quiz attempt
+            return redirect(`/results?score=${newScore}&total=${totalQuestions}&category=${categoryId}&attempt=${attemptId}`);
+        } else {
+            console.error("Missing quiz attempt ID in form submission");
+            return redirect(`/quiz/${categoryId}`);
+        }
     }
 
     // Otherwise, go to the next question
@@ -134,7 +135,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
     const navigation = useNavigation();
     const hasInitialized = useRef(false);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
-    const [isTimeUp, setIsTimeUp] = useState(false);
+    const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
     const [attemptId, setAttemptId] = useState<string>('');
     const [startTime, setStartTime] = useState<number>(Date.now());
     const isLoading = navigation.state === "loading";
@@ -218,9 +219,10 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
             if (!hasInitialized.current || !attemptId) return;
 
             console.log("Quiz component unmounting, saving attempt:", attemptId);
-            finalizeQuizAttempt(attemptId);
         };
     }, [attemptId]);
+
+    const { mutate: recordQuestionAttemptMutation } = useRecordQuestionAttempt();
 
     // Handle time up
     const handleTimeUp = () => {
@@ -229,14 +231,14 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
         // Record the timeout (using -1 as the selectedOption for timeouts)
         if (attemptId && currentQuestion) {
             const timeSpent = Math.round((Date.now() - startTime) / 1000);
-            recordQuestionAttempt(
-                attemptId,
-                currentQuestion.id,
-                categoryId,
-                -1, // Use -1 to indicate timeout
-                currentQuestion.correctOptionIndex,
-                timeSpent
-            );
+            recordQuestionAttemptMutation({
+                quizAttemptId: attemptId,
+                questionId: currentQuestion.id,
+                categoryId: categoryId,
+                selectedOption: -1, // Use -1 to indicate timeout
+                correctOption: currentQuestion.correctOptionIndex,
+                timeSpent: timeSpent
+            });
         }
     };
 
@@ -246,14 +248,14 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
             // Calculate time spent on this question
             const timeSpent = Math.round((Date.now() - startTime) / 1000);
 
-            recordQuestionAttempt(
-                attemptId,
-                currentQuestion.id,
-                categoryId,
-                option,
-                currentQuestion.correctOptionIndex,
-                timeSpent
-            );
+            recordQuestionAttemptMutation({
+                quizAttemptId: attemptId,
+                questionId: currentQuestion.id,
+                categoryId: categoryId,
+                selectedOption: option,
+                correctOption: currentQuestion.correctOptionIndex,
+                timeSpent: timeSpent
+            });
 
             setSelectedOption(option);
         }
@@ -355,15 +357,15 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                             className="space-y-2"
                         >
                             {currentQuestion.options.map((option: string, index: number) => {
-                                let itemClassName = "border border-gray-200 hover:border-blue-300";
+                                let itemClassName = "border border-gray-200 hover:border-blue-300 cursor-pointer";
 
                                 if (isAnswered) {
                                     if (index === currentQuestion.correctOptionIndex) {
-                                        itemClassName = "border-2 border-green-500 bg-green-50";
+                                        itemClassName = "border-2 border-green-500 bg-green-50 cursor-default";
                                     } else if (index === selectedOption) {
-                                        itemClassName = "border-2 border-red-500 bg-red-50";
+                                        itemClassName = "border-2 border-red-500 bg-red-50 cursor-default";
                                     } else {
-                                        itemClassName = "opacity-70";
+                                        itemClassName = "opacity-70 cursor-default";
                                     }
                                 }
 
@@ -376,9 +378,9 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                                             value={index.toString()}
                                             id={`option-${index}`}
                                             disabled={isAnswered}
-                                            className="border-gray-400"
+                                            className="border-gray-400 cursor-pointer"
                                         />
-                                        <Label htmlFor={`option-${index}`} className="flex-1 pl-2 text-sm">
+                                        <Label htmlFor={`option-${index}`} className="flex-1 pl-2 text-sm cursor-pointer">
                                             {option}
                                         </Label>
 
@@ -423,7 +425,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
 
                                 <Button
                                     type="submit"
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white h-9 text-sm"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white h-9 text-sm cursor-pointer"
                                     disabled={navigation.state === "submitting"}
                                 >
                                     {navigation.state === "submitting" ? (

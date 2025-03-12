@@ -29,6 +29,32 @@ export const questions: QuizQuestion[] = [
         correctOptionIndex: 2,
         explanation: "Participative leadership is most effective when implementing significant changes that may face resistance. By involving teachers in the decision-making process, they develop ownership of the changes, leading to better implementation and reduced resistance."
     },
+    {
+        id: "lead3",
+        categoryId: "leadership",
+        question: "What is the role of a school leader in fostering a positive school culture?",
+        options: [
+            "Enforcing strict disciplinary policies",
+            "Promoting open communication, collaboration, and mutual respect",
+            "Maintaining the status quo and avoiding change",
+            "Focusing solely on academic performance"
+        ],
+        correctOptionIndex: 1,
+        explanation: "A school leader plays a crucial role in fostering a positive school culture by promoting open communication, collaboration, and mutual respect among students, teachers, and staff. This creates a supportive and inclusive environment that enhances learning and well-being."
+    },
+    {
+        id: "lead4",
+        categoryId: "leadership",
+        question: "A school principal notices a decline in teacher morale. Which action would be most effective in addressing this issue?",
+        options: [
+            "Ignoring the issue and hoping it resolves itself",
+            "Implementing new performance metrics to increase accountability",
+            "Conducting a staff survey to identify concerns and implementing strategies to address them",
+            "Replacing underperforming teachers"
+        ],
+        correctOptionIndex: 2,
+        explanation: "Conducting a staff survey to identify concerns and implementing strategies to address them is the most effective action. This demonstrates that the principal values teacher input and is committed to creating a positive work environment."
+    },
 
     // Educational Management questions
     {
@@ -57,6 +83,32 @@ export const questions: QuizQuestion[] = [
         correctOptionIndex: 1,
         explanation: "The key result areas in RPMS include Learning Environment, Community Linkages, Teaching and Learning, and Human Resource Management and Development. Financial Management is not explicitly defined as a key result area in DO 83, s. 2012, although it falls under broader management concerns."
     },
+    {
+        id: "mgmt3",
+        categoryId: "management",
+        question: "Which of the following is the best approach to managing conflict between teachers?",
+        options: [
+            "Ignoring the conflict and hoping it resolves itself",
+            "Taking sides and supporting one teacher over the other",
+            "Facilitating a mediation process to help the teachers find a mutually agreeable solution",
+            "Transferring one of the teachers to another school"
+        ],
+        correctOptionIndex: 2,
+        explanation: "Facilitating a mediation process is the best approach to managing conflict between teachers. This allows the teachers to communicate their concerns and work together to find a solution that addresses the needs of both parties."
+    },
+    {
+        id: "mgmt4",
+        categoryId: "management",
+        question: "What is the importance of data-driven decision-making in educational management?",
+        options: [
+            "It is not important; intuition is sufficient",
+            "It helps to justify decisions already made",
+            "It provides objective evidence to inform decision-making and improve outcomes",
+            "It complicates the decision-making process"
+        ],
+        correctOptionIndex: 2,
+        explanation: "Data-driven decision-making is crucial in educational management because it provides objective evidence to inform decision-making and improve outcomes. This allows school leaders to make informed choices based on data rather than relying solely on intuition or personal biases."
+    },
 
     // Instructional Leadership questions
     {
@@ -72,8 +124,45 @@ export const questions: QuizQuestion[] = [
         correctOptionIndex: 1,
         explanation: "Differentiated instruction refers to tailoring teaching approaches to address the diverse learning needs, styles, readiness levels, and interests of individual students within a classroom. It recognizes that students learn in different ways and at different rates."
     },
-
-    // More questions for each category...
+    {
+        id: "inst2",
+        categoryId: "instructional",
+        question: "What is the role of instructional leaders in promoting effective teaching practices?",
+        options: [
+            "Dictating teaching methods to teachers",
+            "Providing resources, professional development, and support for teachers to improve their skills",
+            "Ignoring ineffective teaching practices",
+            "Focusing solely on student test scores"
+        ],
+        correctOptionIndex: 1,
+        explanation: "Instructional leaders play a vital role in promoting effective teaching practices by providing resources, professional development, and support for teachers to improve their skills. This includes mentoring, coaching, and providing access to research-based instructional strategies."
+    },
+    {
+        id: "inst3",
+        categoryId: "instructional",
+        question: "Which assessment method provides the most comprehensive understanding of student learning?",
+        options: [
+            "Standardized tests",
+            "Formative assessments",
+            "Summative assessments",
+            "A combination of formative and summative assessments"
+        ],
+        correctOptionIndex: 3,
+        explanation: "A combination of formative and summative assessments provides the most comprehensive understanding of student learning. Formative assessments provide ongoing feedback to guide instruction, while summative assessments measure overall learning outcomes."
+    },
+    {
+        id: "inst4",
+        categoryId: "instructional",
+        question: "How can technology be effectively integrated into instruction?",
+        options: [
+            "Using technology for its own sake, regardless of its relevance to the curriculum",
+            "Replacing traditional teaching methods entirely with technology",
+            "Using technology to enhance and support teaching and learning, not replace it",
+            "Limiting technology use to specific subjects"
+        ],
+        correctOptionIndex: 2,
+        explanation: "Technology can be effectively integrated into instruction by using it to enhance and support teaching and learning, not replace it. This includes using technology to provide access to information, facilitate collaboration, and create engaging learning experiences."
+    },
 
     // Administrative Management questions
     {
@@ -89,6 +178,45 @@ export const questions: QuizQuestion[] = [
         correctOptionIndex: 2,
         explanation: "According to DepEd guidelines, all school funds, including voluntary contributions, must be deposited in an authorized government depository bank. This ensures proper safekeeping, transparency, and adherence to government accounting and auditing rules."
     },
+    {
+        id: "admin2",
+        categoryId: "administrative",
+        question: "What is the role of the School Governing Council (SGC)?",
+        options: [
+            "To manage the day-to-day operations of the school",
+            "To provide policy guidance and oversight for the school",
+            "To raise funds for the school",
+            "To discipline students"
+        ],
+        correctOptionIndex: 1,
+        explanation: "The School Governing Council (SGC) plays a crucial role in providing policy guidance and oversight for the school. It is composed of representatives from the school administration, teachers, parents, students, and community members."
+    },
+    {
+        id: "admin3",
+        categoryId: "administrative",
+        question: "Which of the following is the most effective way to manage school resources?",
+        options: [
+            "Spending all available funds as quickly as possible",
+            "Prioritizing spending based on the school's SIP and student needs",
+            "Keeping all funds in reserve for emergencies",
+            "Distributing funds equally among all departments"
+        ],
+        correctOptionIndex: 1,
+        explanation: "The most effective way to manage school resources is to prioritize spending based on the school's SIP and student needs. This ensures that resources are allocated in a way that supports the school's goals and improves student outcomes."
+    },
+    {
+        id: "admin4",
+        categoryId: "administrative",
+        question: "What is the importance of maintaining accurate school records?",
+        options: [
+            "It is not important; only student grades matter",
+            "It helps to track student progress and ensure accountability",
+            "It is a waste of time and resources",
+            "It is only necessary for large schools"
+        ],
+        correctOptionIndex: 1,
+        explanation: "Maintaining accurate school records is crucial for tracking student progress and ensuring accountability. This includes student attendance, grades, test scores, and other relevant information."
+    },
 
     // Legal Aspects questions
     {
@@ -103,5 +231,44 @@ export const questions: QuizQuestion[] = [
         ],
         correctOptionIndex: 2,
         explanation: "Republic Act 7610, or the Special Protection of Children Against Abuse, Exploitation and Discrimination Act, provides the comprehensive legal framework for protecting children from various forms of abuse, including in educational settings. It covers a broader range of protections than the Anti-Bullying Act or education-specific legislation."
+    },
+    {
+        id: "legal2",
+        categoryId: "legal",
+        question: "What is the legal basis for the implementation of inclusive education in the Philippines?",
+        options: [
+            "Presidential Decree No. 603",
+            "Republic Act No. 7277",
+            "Batas Pambansa Blg. 232",
+            "All of the above"
+        ],
+        correctOptionIndex: 3,
+        explanation: "All of the above laws contribute to the legal basis for inclusive education in the Philippines. They aim to provide equal opportunities for all learners, including those with disabilities or special needs."
+    },
+    {
+        id: "legal3",
+        categoryId: "legal",
+        question: "According to the Family Educational Rights and Privacy Act (FERPA), what rights do parents have regarding their child's education records?",
+        options: [
+            "The right to inspect and review their child's education records",
+            "The right to request corrections to their child's education records",
+            "The right to control who has access to their child's education records",
+            "All of the above"
+        ],
+        correctOptionIndex: 3,
+        explanation: "FERPA grants parents several rights regarding their child's education records, including the right to inspect and review the records, request corrections, and control who has access to the records."
+    },
+    {
+        id: "legal4",
+        categoryId: "legal",
+        question: "Which of the following actions is a violation of a student's right to due process?",
+        options: [
+            "Informing a student of the charges against them",
+            "Providing a student with an opportunity to present their side of the story",
+            "Suspending a student without a hearing",
+            "Imposing a fair and reasonable punishment"
+        ],
+        correctOptionIndex: 2,
+        explanation: "Suspending a student without a hearing is a violation of their right to due process. Students have the right to be informed of the charges against them and to have an opportunity to present their side of the story before being disciplined."
     }
 ];

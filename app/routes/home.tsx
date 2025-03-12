@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "../components/ui/button";
 import { GraduationCap, BookOpen, School, ClipboardList } from "lucide-react";
 import { getQueryClient } from "../lib/query-client";
+import { Skeleton } from "../components/ui/skeleton";
 
 export async function loader() {
   // First, fetch categories normally for React Router (initial load)
@@ -17,6 +18,33 @@ export async function loader() {
 
   // Return the data for the initial render
   return { categories };
+}
+
+function CategoryCardSkeleton() {
+  return (
+    <Card className="border border-gray-200 shadow-sm">
+      <CardHeader className="p-4 pb-2">
+        <div className="flex items-center gap-2">
+          <div className="text-blue-600">
+            <Skeleton className="h-5 w-5 rounded-full" />
+          </div>
+          <CardTitle className="text-base"><Skeleton className="h-5 w-32" /></CardTitle>
+        </div>
+        <CardDescription className="text-xs mt-1">
+          <Skeleton className="h-3 w-48" />
+        </CardDescription>
+      </CardHeader>
+      <CardFooter className="p-4 pt-2">
+        <Button
+          asChild
+          variant="outline"
+          className="w-full text-xs h-8 border-blue-600 text-blue-600 hover:bg-blue-50"
+        >
+          <Skeleton className="h-5 w-full" />
+        </Button>
+      </CardFooter>
+    </Card>
+  );
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
@@ -51,8 +79,48 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  if (!displayCategories) {
-    return <div className="p-4 text-center">Loading categories...</div>;
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <header className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-blue-800">NQESH Reviewer</h1>
+          <p className="text-sm text-gray-600 mt-2">
+            Prepare for the National Qualifying Examination for School Heads
+          </p>
+          <div className="mt-4">
+          </div>
+        </header>
+
+        <Card className="mb-6 bg-blue-50 border-none">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-blue-600 p-2 text-white">
+                <GraduationCap className="h-4 w-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-medium mb-1"><Skeleton className="h-5 w-32" /></h2>
+                <CardDescription className="text-xs text-gray-700">
+                  <Skeleton className="h-3 w-48" />
+                </CardDescription>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <h2 className="text-sm font-medium mb-3 px-1">Review by Domain</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <CategoryCardSkeleton key={index} />
+          ))}
+        </div>
+
+        <footer className="mt-8 text-center text-xs text-gray-600">
+          <p>DepEd NQESH Reviewer © 2025</p>
+          <p className="mt-1">This is a practice tool and is not affiliated with the Department of Education</p>
+        </footer>
+      </div>
+    );
   }
 
   return (
@@ -81,10 +149,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
             <div>
               <h2 className="text-sm font-medium mb-1">About NQESH</h2>
-              <p className="text-xs text-gray-700">
+              <CardDescription className="text-xs text-gray-700">
                 The National Qualifying Examination for School Heads is administered by the Department of Education
                 to ensure that candidates for school head positions meet the required competencies and standards.
-              </p>
+              </CardDescription>
             </div>
           </div>
         </CardContent>

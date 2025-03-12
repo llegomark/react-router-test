@@ -98,6 +98,32 @@ function getCategoryName(categoryId: string): string {
     return names[categoryId] || categoryId;
 }
 
+function LoadingRecentActivity() {
+    return (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-40 mb-2" />
+                <Skeleton className="h-4 w-64" />
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="p-3 bg-gray-50 rounded-md">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <Skeleton className="h-4 w-32 mb-1" />
+                                    <Skeleton className="h-3 w-20" />
+                                </div>
+                                <Skeleton className="h-6 w-12" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
     const [activeTab, setActiveTab] = useState("overview");
 
@@ -231,38 +257,42 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                 </Card>
                             )}
 
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base">Recent Activity</CardTitle>
-                                    <CardDescription>Your latest quiz attempts</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {recentAttempts.length > 0 ? (
-                                        <div className="space-y-2">
-                                            {recentAttempts.map((attempt: QuizAttempt) => (
-                                                <div key={attempt.id} className="p-3 bg-gray-50 rounded-md">
-                                                    <div className="flex justify-between items-center">
-                                                        <div>
-                                                            <div className="font-medium">{getCategoryName(attempt.categoryId)}</div>
-                                                            <div className="text-xs text-gray-500">
-                                                                {new Date(attempt.date).toLocaleDateString()}
+                            {metricsLoading ? (
+                                <LoadingRecentActivity />
+                            ) : (
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-base">Recent Activity</CardTitle>
+                                        <CardDescription>Your latest quiz attempts</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {recentAttempts.length > 0 ? (
+                                            <div className="space-y-2">
+                                                {recentAttempts.map((attempt: QuizAttempt) => (
+                                                    <div key={attempt.id} className="p-3 bg-gray-50 rounded-md">
+                                                        <div className="flex justify-between items-center">
+                                                            <div>
+                                                                <div className="font-medium">{getCategoryName(attempt.categoryId)}</div>
+                                                                <div className="text-xs text-gray-500">
+                                                                    {new Date(attempt.date).toLocaleDateString()}
+                                                                </div>
                                                             </div>
+                                                            <Badge variant={
+                                                                attempt.score / attempt.totalQuestions >= 0.7 ? "default" :
+                                                                    attempt.score / attempt.totalQuestions >= 0.5 ? "secondary" : "destructive"
+                                                            }>
+                                                                {attempt.score}/{attempt.totalQuestions}
+                                                            </Badge>
                                                         </div>
-                                                        <Badge variant={
-                                                            attempt.score / attempt.totalQuestions >= 0.7 ? "default" :
-                                                                attempt.score / attempt.totalQuestions >= 0.5 ? "secondary" : "destructive"
-                                                        }>
-                                                            {attempt.score}/{attempt.totalQuestions}
-                                                        </Badge>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-center text-gray-500 py-10">No recent quiz attempts</p>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-center text-gray-500 py-10">No recent quiz attempts</p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
                     </TabsContent>
 
