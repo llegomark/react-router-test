@@ -236,7 +236,9 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                 questionId: currentQuestion.id,
                 categoryId: categoryId,
                 selectedOption: -1, // Use -1 to indicate timeout
-                correctOption: currentQuestion.correctOptionIndex,
+                correctOption: currentQuestion.shuffledCorrectOptionIndex !== undefined
+                    ? currentQuestion.shuffledCorrectOptionIndex
+                    : currentQuestion.correctOptionIndex,
                 timeSpent: timeSpent
             });
         }
@@ -248,12 +250,18 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
             // Calculate time spent on this question
             const timeSpent = Math.round((Date.now() - startTime) / 1000);
 
+            // Get the appropriate indices
+            const selectedOptionIndex = option;
+            const actualCorrectOptionIndex = currentQuestion.shuffledCorrectOptionIndex !== undefined
+                ? currentQuestion.shuffledCorrectOptionIndex
+                : currentQuestion.correctOptionIndex;
+
             recordQuestionAttemptMutation({
                 quizAttemptId: attemptId,
                 questionId: currentQuestion.id,
                 categoryId: categoryId,
-                selectedOption: option,
-                correctOption: currentQuestion.correctOptionIndex,
+                selectedOption: selectedOptionIndex,
+                correctOption: actualCorrectOptionIndex,
                 timeSpent: timeSpent
             });
 
@@ -263,8 +271,14 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
 
     // Define isAnswered here to ensure it's available for recordAnswer
     const isAnswered = selectedOption !== null || isTimeUp;
+
+    // Get correct option index (either shuffled or original)
+    const correctOptionIndex = currentQuestion?.shuffledCorrectOptionIndex !== undefined
+        ? currentQuestion.shuffledCorrectOptionIndex
+        : currentQuestion?.correctOptionIndex;
+
     // Only define isCorrect if we have a current question and an answer
-    const isCorrect = currentQuestion && selectedOption === currentQuestion.correctOptionIndex;
+    const isCorrect = currentQuestion && selectedOption === correctOptionIndex;
 
     // NOW we can have conditional returns
     if (isLoading || !loaderData) {
@@ -306,6 +320,9 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
             </div>
         );
     }
+
+    // Use shuffled options if available, otherwise use original options
+    const displayOptions = currentQuestion.shuffledOptions || currentQuestion.options;
 
     return (
         <div className="max-w-2xl mx-auto px-4 py-4">
@@ -356,11 +373,11 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                             onValueChange={(value) => !isAnswered && recordAnswer(Number(value))}
                             className="space-y-2"
                         >
-                            {currentQuestion.options.map((option: string, index: number) => {
+                            {displayOptions.map((option: string, index: number) => {
                                 let itemClassName = "border border-gray-200 hover:border-blue-300 cursor-pointer";
 
                                 if (isAnswered) {
-                                    if (index === currentQuestion.correctOptionIndex) {
+                                    if (index === correctOptionIndex) {
                                         itemClassName = "border-2 border-green-500 bg-green-50 cursor-default";
                                     } else if (index === selectedOption) {
                                         itemClassName = "border-2 border-red-500 bg-red-50 cursor-default";
@@ -384,11 +401,11 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                                             {option}
                                         </Label>
 
-                                        {isAnswered && index === currentQuestion.correctOptionIndex && (
+                                        {isAnswered && index === correctOptionIndex && (
                                             <CheckCircle2 className="h-4 w-4 text-green-500 ml-1 flex-shrink-0" />
                                         )}
 
-                                        {isAnswered && index === selectedOption && selectedOption !== currentQuestion.correctOptionIndex && (
+                                        {isAnswered && index === selectedOption && selectedOption !== correctOptionIndex && (
                                             <XCircle className="h-4 w-4 text-red-500 ml-1 flex-shrink-0" />
                                         )}
                                     </div>

@@ -12,4 +12,6 @@ export interface QuizQuestion {
     options: string[];
     correctOptionIndex: number;
     explanation: string;
+    shuffledOptions?: string[];
+    shuffledCorrectOptionIndex?: number;
 }

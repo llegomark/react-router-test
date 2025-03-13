@@ -7,6 +7,7 @@ import {
 import { categories } from "./categories";
 import { questions } from "./questions";
 import type { QuizCategory, QuizQuestion } from "../types/quiz";
+import { shuffleArray } from "../lib/utils";
 
 // Query Keys
 export const queryKeys = {
@@ -20,8 +21,37 @@ export function getCategories(): Promise<QuizCategory[]> {
 }
 
 export function getQuestionsByCategory(categoryId: string): Promise<QuizQuestion[]> {
+    const categoryQuestions = questions.filter((q) => q.categoryId === categoryId);
+
+    // Shuffle the questions
+    const shuffledQuestions = shuffleArray(categoryQuestions);
+
+    // For each question, shuffle the options and track the new correct answer index
     return Promise.resolve(
-        questions.filter((q) => q.categoryId === categoryId)
+        shuffledQuestions.map(question => {
+            // Create a mapping of indices to track where each option moves to
+            const optionsWithIndices = question.options.map((opt, index) => ({
+                text: opt,
+                originalIndex: index
+            }));
+
+            // Shuffle the options
+            const shuffledOptionsWithIndices = shuffleArray(optionsWithIndices);
+
+            // Extract just the text for the shuffled options
+            const shuffledOptions = shuffledOptionsWithIndices.map(opt => opt.text);
+
+            // Find where the correct answer moved to
+            const shuffledCorrectOptionIndex = shuffledOptionsWithIndices.findIndex(
+                opt => opt.originalIndex === question.correctOptionIndex
+            );
+
+            return {
+                ...question,
+                shuffledOptions,
+                shuffledCorrectOptionIndex
+            };
+        })
     );
 }
 
