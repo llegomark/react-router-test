@@ -27,6 +27,7 @@ import {
 } from "../components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 import { Skeleton } from "../components/ui/skeleton";
+import { QueryErrorBoundary } from "../components/QueryErrorBoundary";
 
 // Colors for charts
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -232,67 +233,71 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
                     <TabsContent value="overview">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {categoryLoading ? (
-                                <LoadingChart />
-                            ) : (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="text-base">Category Performance</CardTitle>
-                                        <CardDescription>Your scores across different domains</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {categoryPerformance && categoryPerformance.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height={300}>
-                                                <BarChart data={categoryPerformance}>
-                                                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                                                    <YAxis label={{ value: 'Score %', angle: -90, position: 'insideLeft' }} />
-                                                    <ChartTooltip formatter={(value) => [`${value}%`, 'Score']} />
-                                                    <Bar dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <p className="text-center text-gray-500 py-10">Complete quizzes to see your performance</p>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )}
+                            <QueryErrorBoundary>
+                                {categoryLoading ? (
+                                    <LoadingChart />
+                                ) : (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="text-base">Category Performance</CardTitle>
+                                            <CardDescription>Your scores across different domains</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {categoryPerformance && categoryPerformance.length > 0 ? (
+                                                <ResponsiveContainer width="100%" height={300}>
+                                                    <BarChart data={categoryPerformance}>
+                                                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                                                        <YAxis label={{ value: 'Score %', angle: -90, position: 'insideLeft' }} />
+                                                        <ChartTooltip formatter={(value) => [`${value}%`, 'Score']} />
+                                                        <Bar dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            ) : (
+                                                <p className="text-center text-gray-500 py-10">Complete quizzes to see your performance</p>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </QueryErrorBoundary>
 
-                            {metricsLoading ? (
-                                <LoadingRecentActivity />
-                            ) : (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="text-base">Recent Activity</CardTitle>
-                                        <CardDescription>Your latest quiz attempts</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {recentAttempts.length > 0 ? (
-                                            <div className="space-y-2">
-                                                {recentAttempts.map((attempt: QuizAttempt) => (
-                                                    <div key={attempt.id} className="p-3 bg-gray-50 rounded-md">
-                                                        <div className="flex justify-between items-center">
-                                                            <div>
-                                                                <div className="font-medium">{getCategoryName(attempt.categoryId)}</div>
-                                                                <div className="text-xs text-gray-500">
-                                                                    {new Date(attempt.date).toLocaleDateString()}
+                            <QueryErrorBoundary>
+                                {metricsLoading ? (
+                                    <LoadingRecentActivity />
+                                ) : (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="text-base">Recent Activity</CardTitle>
+                                            <CardDescription>Your latest quiz attempts</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {recentAttempts.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {recentAttempts.map((attempt: QuizAttempt) => (
+                                                        <div key={attempt.id} className="p-3 bg-gray-50 rounded-md">
+                                                            <div className="flex justify-between items-center">
+                                                                <div>
+                                                                    <div className="font-medium">{getCategoryName(attempt.categoryId)}</div>
+                                                                    <div className="text-xs text-gray-500">
+                                                                        {new Date(attempt.date).toLocaleDateString()}
+                                                                    </div>
                                                                 </div>
+                                                                <Badge variant={
+                                                                    attempt.score / attempt.totalQuestions >= 0.7 ? "default" :
+                                                                        attempt.score / attempt.totalQuestions >= 0.5 ? "secondary" : "destructive"
+                                                                }>
+                                                                    {attempt.score}/{attempt.totalQuestions}
+                                                                </Badge>
                                                             </div>
-                                                            <Badge variant={
-                                                                attempt.score / attempt.totalQuestions >= 0.7 ? "default" :
-                                                                    attempt.score / attempt.totalQuestions >= 0.5 ? "secondary" : "destructive"
-                                                            }>
-                                                                {attempt.score}/{attempt.totalQuestions}
-                                                            </Badge>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-center text-gray-500 py-10">No recent quiz attempts</p>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )}
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-center text-gray-500 py-10">No recent quiz attempts</p>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </QueryErrorBoundary>
                         </div>
                     </TabsContent>
 

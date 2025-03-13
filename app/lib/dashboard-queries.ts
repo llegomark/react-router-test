@@ -1,5 +1,5 @@
 // app/lib/dashboard-queries.ts
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, queryOptions } from '@tanstack/react-query';
 import type { UserProgress } from '../types/progress';
 import { getProgress, resetProgressCache } from '../services/progressStorage';
 
@@ -116,85 +116,88 @@ function getCategoryName(categoryId: string): string {
     return names[categoryId] || categoryId;
 }
 
+// Query options
+export const progressDataOptions = () => queryOptions({
+    queryKey: dashboardKeys.progress(),
+    queryFn: fetchProgress,
+    // Reduce stale time to prompt more frequent refetching
+    staleTime: 1000 * 5, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+});
+
+export const dashboardMetricsOptions = (progress: UserProgress | undefined) => queryOptions({
+    queryKey: dashboardKeys.metrics(),
+    queryFn: () => {
+        if (!progress) return null;
+
+        // Filter out attempts with no questions answered
+        const validAttempts = progress.quizAttempts.filter(attempt =>
+            progress.questionAttempts.some(q => q.quizAttemptId === attempt.id) &&
+            attempt.totalQuestions > 0
+        );
+
+        // Get recent attempts
+        const recentAttempts = validAttempts
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 5);
+
+        return {
+            totalAttempts: validAttempts.length,
+            questionsAnswered: progress.questionAttempts.length,
+            correctAnswers: progress.questionAttempts.filter(a => a.isCorrect).length,
+            recentAttempts
+        };
+    },
+    enabled: !!progress,
+    // Keep this data in sync with progress data
+    staleTime: 1000 * 5, // Consider data stale after 5 seconds
+});
+
+export const categoryPerformanceOptions = (progress: UserProgress | undefined) => queryOptions({
+    queryKey: dashboardKeys.categoryPerformance(),
+    queryFn: () => progress ? calculateCategoryPerformance(progress) : [],
+    enabled: !!progress,
+    staleTime: 1000 * 5,
+});
+
+export const timeMetricsOptions = (progress: UserProgress | undefined) => queryOptions({
+    queryKey: dashboardKeys.timeMetrics(),
+    queryFn: () => progress ? calculateTimeMetrics(progress) : [],
+    enabled: !!progress,
+    staleTime: 1000 * 5,
+});
+
+export const improvementDataOptions = (progress: UserProgress | undefined) => queryOptions({
+    queryKey: dashboardKeys.improvementData(),
+    queryFn: () => progress ? calculateImprovementData(progress) : [],
+    enabled: !!progress,
+    staleTime: 1000 * 5,
+});
+
 // React Query hooks
 export function useProgressData() {
-    return useQuery({
-        queryKey: dashboardKeys.progress(),
-        queryFn: fetchProgress,
-        // Reduce stale time to prompt more frequent refetching
-        staleTime: 1000 * 5, // Consider data stale after 5 seconds
-        refetchOnWindowFocus: true,
-        refetchOnMount: true,
-    });
+    return useQuery(progressDataOptions());
 }
 
 export function useDashboardMetrics() {
-    const queryClient = useQueryClient();
-    const { data: progress, isLoading: progressLoading } = useProgressData();
-
-    return useQuery({
-        queryKey: dashboardKeys.metrics(),
-        queryFn: () => {
-            if (!progress) return null;
-
-            // Filter out attempts with no questions answered
-            const validAttempts = progress.quizAttempts.filter(attempt =>
-                progress.questionAttempts.some(q => q.quizAttemptId === attempt.id) &&
-                attempt.totalQuestions > 0
-            );
-
-            // Get recent attempts
-            const recentAttempts = validAttempts
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .slice(0, 5);
-
-            return {
-                totalAttempts: validAttempts.length,
-                questionsAnswered: progress.questionAttempts.length,
-                correctAnswers: progress.questionAttempts.filter(a => a.isCorrect).length,
-                recentAttempts
-            };
-        },
-        enabled: !!progress,
-        // Keep this data in sync with progress data
-        staleTime: 1000 * 5, // Consider data stale after 5 seconds
-    });
+    const { data: progress } = useProgressData();
+    return useQuery(dashboardMetricsOptions(progress));
 }
 
 export function useCategoryPerformance() {
-    const { data: progress, isLoading: progressLoading } = useProgressData();
-
-    return useQuery({
-        queryKey: dashboardKeys.categoryPerformance(),
-        queryFn: () => progress ? calculateCategoryPerformance(progress) : [],
-        enabled: !!progress,
-        // Keep this data in sync with progress data
-        staleTime: 1000 * 5, // Consider data stale after 5 seconds
-    });
+    const { data: progress } = useProgressData();
+    return useQuery(categoryPerformanceOptions(progress));
 }
 
 export function useTimeMetrics() {
-    const { data: progress, isLoading: progressLoading } = useProgressData();
-
-    return useQuery({
-        queryKey: dashboardKeys.timeMetrics(),
-        queryFn: () => progress ? calculateTimeMetrics(progress) : [],
-        enabled: !!progress,
-        // Keep this data in sync with progress data
-        staleTime: 1000 * 5, // Consider data stale after 5 seconds
-    });
+    const { data: progress } = useProgressData();
+    return useQuery(timeMetricsOptions(progress));
 }
 
 export function useImprovementData() {
-    const { data: progress, isLoading: progressLoading } = useProgressData();
-
-    return useQuery({
-        queryKey: dashboardKeys.improvementData(),
-        queryFn: () => progress ? calculateImprovementData(progress) : [],
-        enabled: !!progress,
-        // Keep this data in sync with progress data
-        staleTime: 1000 * 5, // Consider data stale after 5 seconds
-    });
+    const { data: progress } = useProgressData();
+    return useQuery(improvementDataOptions(progress));
 }
 
 // Helper function to invalidate all dashboard queries to force a refresh

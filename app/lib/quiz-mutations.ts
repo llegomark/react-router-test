@@ -6,12 +6,20 @@ import {
 } from '../services/progressStorage';
 import { dashboardKeys } from './dashboard-queries';
 import { toast } from 'sonner';
+import type { UserProgress, QuestionAttempt } from '../types/progress';
 
 export function useRecordQuestionAttempt() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ quizAttemptId, questionId, categoryId, selectedOption, correctOption, timeSpent }: { quizAttemptId: string, questionId: string, categoryId: string, selectedOption: number, correctOption: number, timeSpent: number }) => {
+        mutationFn: ({ quizAttemptId, questionId, categoryId, selectedOption, correctOption, timeSpent }: {
+            quizAttemptId: string,
+            questionId: string,
+            categoryId: string,
+            selectedOption: number,
+            correctOption: number,
+            timeSpent: number
+        }) => {
             return new Promise<void>((resolve, reject) => {
                 try {
                     recordQuestionAttemptFn(quizAttemptId, questionId, categoryId, selectedOption, correctOption, timeSpent);
@@ -26,13 +34,13 @@ export function useRecordQuestionAttempt() {
             await queryClient.cancelQueries({ queryKey: dashboardKeys.progress() });
 
             // Snapshot the previous value
-            const previousProgress = queryClient.getQueryData(dashboardKeys.progress());
+            const previousProgress = queryClient.getQueryData<UserProgress>(dashboardKeys.progress());
 
             // Optimistically update to the new value
-            queryClient.setQueryData(dashboardKeys.progress(), (old: any) => {
+            queryClient.setQueryData<UserProgress>(dashboardKeys.progress(), (old) => {
                 if (!old) return old;
 
-                const newQuestionAttempt = {
+                const newQuestionAttempt: QuestionAttempt = {
                     id: 'optimistic-' + Date.now(), // Generate a unique ID
                     quizAttemptId,
                     questionId,
@@ -52,9 +60,11 @@ export function useRecordQuestionAttempt() {
             // Return a context object with the snapshotted value
             return { previousProgress };
         },
-        onError: (err: any, variables: any, context: any) => {
+        onError: (err, variables, context) => {
             // If the mutation fails, roll back to the previous value
-            queryClient.setQueryData(dashboardKeys.progress(), context.previousProgress);
+            if (context?.previousProgress) {
+                queryClient.setQueryData<UserProgress>(dashboardKeys.progress(), context.previousProgress);
+            }
             toast.error("Failed to record question attempt."); // Display error toast
         },
         onSettled: () => {

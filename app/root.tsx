@@ -1,3 +1,4 @@
+// app/root.tsx
 import {
   isRouteErrorResponse,
   Links,
@@ -7,6 +8,8 @@ import {
   ScrollRestoration,
 } from "react-router";
 import { QueryProvider } from "./components/QueryProvider";
+import { QueryErrorResetBoundary } from "@tanstack/react-query";
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -42,10 +45,41 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Define the error fallback props interface
+interface ErrorFallbackProps {
+  error: Error;
+  resetErrorBoundary: () => void;
+}
+
+// Custom error fallback UI component with proper typing
+function QueryErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  return (
+    <div className="p-4 m-4 bg-red-50 rounded-md">
+      <h2 className="text-lg font-medium text-red-700">Something went wrong with data fetching</h2>
+      <p className="text-sm text-red-500 mt-2">{error.message}</p>
+      <button
+        onClick={resetErrorBoundary}
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <QueryProvider>
-      <Outlet />
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ReactErrorBoundary
+            onReset={reset}
+            fallbackRender={QueryErrorFallback}
+          >
+            <Outlet />
+          </ReactErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
     </QueryProvider>
   );
 }
