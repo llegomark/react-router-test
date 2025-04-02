@@ -7,95 +7,119 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ children, className }) => {
+    // Ensure content is always a string
     const content = typeof children === 'string' ? children : String(children || '');
 
-    // Process markdown text to render tables as HTML
+    /**
+     * Processes markdown text, specifically looking for table syntax
+     * and converting it into an HTML table with Tailwind CSS classes.
+     * @param text - The markdown string to process.
+     * @returns An HTML string with tables rendered.
+     */
     const processMarkdown = (text: string): string => {
-        // Process tables
+        // Check if the text contains potential table syntax
         if (text.includes('|')) {
             const lines = text.split('\n');
-            const tableLines: string[] = [];
-            let inTable = false;
-            let tableHtml = '<div class="overflow-x-auto my-4"><table class="min-w-full divide-y divide-gray-200 border border-gray-200">';
+            const processedLines: string[] = []; // Store processed lines (HTML tables or original lines)
+            let currentTableHtml = ''; // Accumulates HTML for the current table being processed
+            let inTable = false; // Flag to track if we are currently inside a table block
 
             for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
+                const line = lines[i].trim();
 
-                // Check if line is part of a table
-                const isTableLine = line.trim().startsWith('|') && line.trim().endsWith('|');
-                const isHeaderSeparator = line.trim().startsWith('|') && line.includes('-') && !line.match(/[a-zA-Z]/);
+                // Basic checks for table lines (must start and end with '|')
+                const isTableLine = line.startsWith('|') && line.endsWith('|');
+                // Check for the header separator line (e.g., |---|---|)
+                const isHeaderSeparator = isTableLine && line.includes('-') && !line.match(/[a-zA-Z0-9]/); // Avoid matching lines with actual content
 
-                if (isTableLine || isHeaderSeparator) {
+                if (isTableLine && !isHeaderSeparator) {
+                    // Start of a new table or continuation of the current one
                     if (!inTable) {
                         inTable = true;
+                        // Initialize table structure with Tailwind classes
+                        currentTableHtml = '<div class="overflow-x-auto my-4 rounded-lg shadow"><table class="min-w-full divide-y divide-gray-200 border border-gray-300">';
                     }
 
-                    if (isHeaderSeparator) {
-                        // Skip header separator, already handled
-                        continue;
-                    }
-
+                    // Split the line into cells (remove leading/trailing empty elements from split)
                     const cells = line.split('|').slice(1, -1);
-                    const isHeader = i + 1 < lines.length && lines[i + 1]?.includes('-|-');
+                    // Check if the *next* line is the header separator to identify the current line as the header
+                    const isHeaderRow = i + 1 < lines.length && lines[i + 1]?.trim().startsWith('|') && lines[i + 1].includes('-') && !lines[i + 1].match(/[a-zA-Z0-9]/);
 
-                    if (isHeader) {
-                        tableHtml += '<thead class="bg-gray-50"><tr>';
+                    if (isHeaderRow) {
+                        // --- Apply enhanced header styling ---
+                        currentTableHtml += '<thead class="bg-gray-800 sticky top-0 z-10">'; // Darker background, sticky
+                        currentTableHtml += '<tr>';
                         cells.forEach(cell => {
-                            tableHtml += `<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${cell.trim()}</th>`;
+                            // --- Style header cells ---
+                            currentTableHtml += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider">${cell.trim()}</th>`; // White text, padding, font style
                         });
-                        tableHtml += '</tr></thead><tbody class="divide-y divide-gray-200 bg-white">';
+                        currentTableHtml += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+                        // Skip the next line as it's the separator
+                        i++;
                     } else {
-                        tableHtml += '<tr class="hover:bg-gray-50">';
+                        // Regular table row
+                        currentTableHtml += '<tr class="hover:bg-gray-50">'; // Add hover effect
                         cells.forEach(cell => {
-                            tableHtml += `<td class="px-3 py-2 text-sm">${cell.trim()}</td>`;
+                            currentTableHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${cell.trim()}</td>`; // Standard cell styling
                         });
-                        tableHtml += '</tr>';
+                        currentTableHtml += '</tr>';
                     }
-                } else if (inTable) {
+                } else if (inTable && !isTableLine) {
+                    // End of the current table block
                     inTable = false;
-                    tableHtml += '</tbody></table></div>';
-                    tableLines.push(tableHtml);
-                    tableHtml = '<div class="overflow-x-auto my-4"><table class="min-w-full divide-y divide-gray-200 border border-gray-200">';
-
-                    // Process this non-table line
-                    tableLines.push(line);
-                } else {
-                    tableLines.push(line);
+                    currentTableHtml += '</tbody></table></div>'; // Close table tags
+                    processedLines.push(currentTableHtml); // Add the completed table HTML
+                    currentTableHtml = ''; // Reset for potential next table
+                    processedLines.push(formatNonTableMarkdown(lines[i])); // Process the current non-table line
+                } else if (!inTable) {
+                    // Line is not part of a table, process as regular markdown
+                    processedLines.push(formatNonTableMarkdown(lines[i]));
                 }
+                // Ignore header separator lines if encountered outside the isTableLine logic
             }
 
-            // Close table if we ended while still in one
+            // If the text ends while still inside a table
             if (inTable) {
-                tableHtml += '</tbody></table></div>';
-                tableLines.push(tableHtml);
+                currentTableHtml += '</tbody></table></div>';
+                processedLines.push(currentTableHtml);
             }
 
-            // Join all lines and apply other markdown formatting
-            return formatNonTableMarkdown(tableLines.join('\n'));
+            // Join all processed lines (HTML tables and formatted markdown lines)
+            // Use <br> for single line breaks within paragraphs, handled by formatNonTableMarkdown
+            return processedLines.join('\n').replace(/\n(?!\s*<[bhul])/g, '<br>'); // Add <br> for line breaks unless it's before specific tags
+
         }
 
-        // If no tables, just format the regular markdown
-        return formatNonTableMarkdown(text);
+        // If no tables are detected, format the entire text as non-table markdown
+        return formatNonTableMarkdown(text).replace(/\n/g, '<br>'); // Add <br> for all line breaks if no tables
     };
 
-    // Handle basic markdown formatting
+    /**
+     * Handles basic markdown formatting like bold, italic, and lists.
+     * @param text - The markdown string (potentially a single line).
+     * @returns HTML string with basic formatting applied.
+     */
     const formatNonTableMarkdown = (text: string): string => {
-        return text
-            // Paragraphs
-            .replace(/\n\n/g, '<br><br>')
-            // Bold
+        let html = text
+            // Bold: **text** -> <strong>text</strong>
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            // Italic
+            // Italic: *text* -> <em>text</em>
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            // Lists (basic support)
-            .replace(/^\s*[\-\*]\s+(.*)/gm, '<li>$1</li>')
-            // Replace list items with proper lists
-            .replace(/<li>.*?<\/li>(\n<li>.*?<\/li>)*/g, match =>
-                `<ul class="list-disc ml-4 my-2">${match}</ul>`);
+            // Basic Unordered List Items: * item -> <li>item</li> or - item -> <li>item</li>
+            .replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>');
+
+        // Wrap consecutive <li> items in <ul> tags
+        // This regex looks for one or more <li> elements, possibly separated by newlines
+        html = html.replace(/(?:<li>.*?<\/li>\s*)+/g, (match) => {
+            // Trim trailing whitespace/newlines from the match before wrapping
+            return `<ul class="list-disc list-inside my-2 pl-4">${match.trim()}</ul>`;
+        });
+
+        return html;
     };
 
-    // Using dangerouslySetInnerHTML in a controlled manner for the tables
-    // This is safe since the content comes from your own data source, not user input
+    // Render the processed content using dangerouslySetInnerHTML.
+    // Ensure the source of `children` is trusted to prevent XSS vulnerabilities.
     return (
         <div
             className={className}
