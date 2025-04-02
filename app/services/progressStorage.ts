@@ -1,4 +1,3 @@
-// app/services/progressStorage.ts - Updated version without React hooks
 import type { QuizAttempt, QuestionAttempt, UserProgress } from "../types/progress";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -53,7 +52,6 @@ function saveToStorage(progress: UserProgress) {
         localStorage.setItem(STORAGE_KEY, serializedData);
         console.log(`Saved to localStorage: ${progress.quizAttempts.length} attempts, ${progress.questionAttempts.length} questions`);
 
-        // We no longer call invalidateDashboardQueries here - that should be done in React components
     } catch (error) {
         console.error('Error saving progress to localStorage:', error);
     }
@@ -255,7 +253,7 @@ export function debugLocalStorage() {
     }
 }
 
-// Export progress data as a JSON file - with enhanced debugging
+// Export progress data as a JSON file - with enhanced debugging AND RANDOM NUMBER IN FILENAME
 export function exportProgress(): void {
     try {
         if (!isBrowser()) {
@@ -313,7 +311,12 @@ export function exportProgress(): void {
         // Create a temporary link element to trigger the download
         const a = document.createElement('a');
         a.href = url;
-        a.download = `nqesh-progress-${new Date().toISOString().slice(0, 10)}.json`;
+
+        // Generate a random number (e.g., 6 digits)
+        const randomNumber = Math.floor(Math.random() * 1000000);
+        // Construct filename with date and random number
+        a.download = `nqesh-progress-${new Date().toISOString().slice(0, 10)}-${randomNumber}.json`;
+
         document.body.appendChild(a);
 
         // Trigger download
