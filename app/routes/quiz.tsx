@@ -5,7 +5,8 @@ import type { Route } from "./+types/quiz";
 import {
     getQuestionsByCategory,
     prefetchQuestionsByCategory,
-    useQuestionsByCategory
+    useQuestionsByCategory,
+    getCategories
 } from "../data/quizApi";
 import { getQueryClient } from "../lib/query-client";
 import { Timer } from "../components/Timer";
@@ -81,13 +82,25 @@ export async function loader({ params }: Route.LoaderArgs) {
         throw new Response("No questions found for this category", { status: 404 });
     }
 
+    let categoryName = "Practice Questions";
+    try {
+        const allCategories = await getCategories();
+        const currentCategory = allCategories.find(cat => cat.id === categoryId);
+        if (currentCategory) {
+            categoryName = currentCategory.name;
+        }
+    } catch (error) {
+        console.error("Failed to fetch category details:", error);
+    }
+
     // Then prefetch for TanStack Query
     const queryClient = getQueryClient();
     await prefetchQuestionsByCategory(queryClient, categoryId);
 
     return {
         questions,
-        categoryId
+        categoryId,
+        categoryName
     };
 }
 
@@ -142,6 +155,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
 
     // Extract data safely - even if loaderData is null
     const categoryId = loaderData?.categoryId || '';
+    const categoryName = loaderData?.categoryName || "Practice Questions";
     const initialQuestions = loaderData?.questions || [];
 
     // Move ALL hooks to the top, before any conditional returns
@@ -341,7 +355,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
             </div>
 
             <div className="flex justify-between items-center mb-2">
-                <h1 className="text-sm font-medium">NQESH Practice Quiz</h1>
+                <h1 className="text-sm font-medium">{categoryName}</h1>
                 <Badge variant="secondary" className="text-xs px-2 py-0.5">
                     Score: {currentScore}/{currentQuestionIndex}
                 </Badge>

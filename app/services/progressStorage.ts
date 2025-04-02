@@ -1,9 +1,6 @@
-// app/services/progressStorage.ts
+// app/services/progressStorage.ts - Updated version without React hooks
 import type { QuizAttempt, QuestionAttempt, UserProgress } from "../types/progress";
 import { v4 as uuidv4 } from 'uuid';
-
-// Import for invalidating queries
-import { invalidateDashboardQueries } from "../lib/dashboard-queries";
 
 const STORAGE_KEY = 'nqesh_quiz_progress';
 
@@ -56,13 +53,7 @@ function saveToStorage(progress: UserProgress) {
         localStorage.setItem(STORAGE_KEY, serializedData);
         console.log(`Saved to localStorage: ${progress.quizAttempts.length} attempts, ${progress.questionAttempts.length} questions`);
 
-        // Invalidate queries to trigger dashboard refresh
-        try {
-            invalidateDashboardQueries();
-        } catch (error) {
-            // This is expected to fail during SSR or before TanStack Query is initialized
-            console.log("Could not invalidate queries (likely SSR)");
-        }
+        // We no longer call invalidateDashboardQueries here - that should be done in React components
     } catch (error) {
         console.error('Error saving progress to localStorage:', error);
     }
@@ -261,5 +252,252 @@ export function debugLocalStorage() {
         }
     } catch (error) {
         console.error("Error reading localStorage:", error);
+    }
+}
+
+// Export progress data as a JSON file - with enhanced debugging
+export function exportProgress(): void {
+    try {
+        if (!isBrowser()) {
+            console.error('Cannot export progress: Not in browser environment');
+            return;
+        }
+
+        // Get the current progress data
+        const progressData = getProgress();
+        console.log('Export - Data retrieved from storage:', {
+            quizAttempts: progressData.quizAttempts.length,
+            questionAttempts: progressData.questionAttempts.length
+        });
+
+        // Make a clean copy of the data to avoid any potential circular references
+        const cleanData: UserProgress = {
+            quizAttempts: progressData.quizAttempts.map(attempt => ({
+                id: attempt.id,
+                categoryId: attempt.categoryId,
+                date: attempt.date,
+                score: attempt.score,
+                totalQuestions: attempt.totalQuestions,
+                timeSpent: attempt.timeSpent || 0 // Ensure timeSpent exists
+            })),
+            questionAttempts: progressData.questionAttempts.map(question => ({
+                id: question.id,
+                quizAttemptId: question.quizAttemptId,
+                questionId: question.questionId,
+                categoryId: question.categoryId,
+                selectedOption: question.selectedOption,
+                correctOption: question.correctOption,
+                isCorrect: question.isCorrect,
+                timeSpent: question.timeSpent || 0 // Ensure timeSpent exists
+            }))
+        };
+
+        // Verify the data before export
+        const validationResult = validateProgressData(cleanData);
+        if (!validationResult.isValid) {
+            console.error(`Export validation failed: ${validationResult.error}`);
+            throw new Error(`Export validation failed: ${validationResult.error}`);
+        }
+
+        // Convert to a JSON string with formatting for readability
+        const jsonData = JSON.stringify(cleanData, null, 2);
+        console.log('Export - JSON prepared, length:', jsonData.length);
+
+        // Create a Blob with the JSON data
+        const blob = new Blob([jsonData], { type: 'application/json' });
+
+        // Create a download URL
+        const url = URL.createObjectURL(blob);
+        console.log('Export - Blob URL created');
+
+        // Create a temporary link element to trigger the download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nqesh-progress-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+
+        // Trigger download
+        a.click();
+        console.log('Export - Download triggered');
+
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            console.log('Export - Cleanup completed');
+        }, 100);
+    } catch (error) {
+        console.error('Error exporting progress data:', error);
+    }
+}
+
+// Import progress data from a JSON file - with enhanced debugging
+export async function importProgress(file: File): Promise<boolean> {
+    try {
+        if (!isBrowser()) {
+            console.error('Cannot import progress: Not in browser environment');
+            return false;
+        }
+
+        // Read the file content as text
+        const fileContent = await file.text();
+        console.log('Import - File content length:', fileContent.length);
+
+        // Basic check for valid JSON format
+        if (!fileContent.trim().startsWith('{')) {
+            console.error('Import error: File does not contain valid JSON (should start with {)');
+            return false;
+        }
+
+        try {
+            // Parse the JSON
+            const importedData = JSON.parse(fileContent);
+            console.log('Import - Successfully parsed JSON:', importedData);
+
+            // First do a simple structure check
+            if (!importedData || typeof importedData !== 'object') {
+                console.error('Import error: Parsed data is not an object');
+                return false;
+            }
+
+            // Check for basic required properties
+            if (!('quizAttempts' in importedData) || !('questionAttempts' in importedData)) {
+                console.error('Import error: Missing required quiz or question attempts arrays');
+                return false;
+            }
+
+            // Validate the data structure with detailed logging
+            const validationResult = validateProgressData(importedData);
+            if (!validationResult.isValid) {
+                console.error(`Import validation failed: ${validationResult.error}`);
+                return false;
+            }
+
+            // Save the imported data (replacing existing data)
+            saveProgress(importedData);
+
+            // Reset the cache to force a reload on next access
+            resetProgressCache();
+
+            console.log('Import successful - Data saved');
+            return true;
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error importing progress data:', error);
+        return false;
+    }
+}
+
+// Enhanced validation with detailed error reporting
+function validateProgressData(data: any): { isValid: boolean; error?: string } {
+    try {
+        // Basic structure validation
+        if (!data) {
+            return { isValid: false, error: 'Data is null or undefined' };
+        }
+
+        if (typeof data !== 'object') {
+            return { isValid: false, error: `Data is not an object: ${typeof data}` };
+        }
+
+        // Arrays must exist but can be empty
+        if (!Array.isArray(data.quizAttempts)) {
+            return { isValid: false, error: 'quizAttempts is not an array' };
+        }
+
+        if (!Array.isArray(data.questionAttempts)) {
+            return { isValid: false, error: 'questionAttempts is not an array' };
+        }
+
+        // If both arrays are empty, it's still valid data (just no progress yet)
+        if (data.quizAttempts.length === 0 && data.questionAttempts.length === 0) {
+            return { isValid: true };
+        }
+
+        // Validate non-empty quiz attempts
+        if (data.quizAttempts.length > 0) {
+            for (let i = 0; i < data.quizAttempts.length; i++) {
+                const attempt = data.quizAttempts[i];
+
+                // Check required string fields
+                if (!attempt.id || typeof attempt.id !== 'string') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} missing 'id' field` };
+                }
+
+                if (!attempt.categoryId || typeof attempt.categoryId !== 'string') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} missing 'categoryId' field` };
+                }
+
+                if (!attempt.date || typeof attempt.date !== 'string') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} missing 'date' field` };
+                }
+
+                // Check required numeric fields
+                if (typeof attempt.score !== 'number') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} has invalid 'score' field` };
+                }
+
+                if (typeof attempt.totalQuestions !== 'number') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} has invalid 'totalQuestions' field` };
+                }
+
+                // timeSpent might not exist in older data, so we'll just check type if it exists
+                if ('timeSpent' in attempt && typeof attempt.timeSpent !== 'number') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} has invalid 'timeSpent' field` };
+                }
+            }
+        }
+
+        // Validate non-empty question attempts
+        if (data.questionAttempts.length > 0) {
+            for (let i = 0; i < data.questionAttempts.length; i++) {
+                const question = data.questionAttempts[i];
+
+                // Check required string fields
+                if (!question.id || typeof question.id !== 'string') {
+                    return { isValid: false, error: `Question attempt at index ${i} missing 'id' field` };
+                }
+
+                if (!question.quizAttemptId || typeof question.quizAttemptId !== 'string') {
+                    return { isValid: false, error: `Question attempt at index ${i} missing 'quizAttemptId' field` };
+                }
+
+                if (!question.questionId || typeof question.questionId !== 'string') {
+                    return { isValid: false, error: `Question attempt at index ${i} missing 'questionId' field` };
+                }
+
+                if (!question.categoryId || typeof question.categoryId !== 'string') {
+                    return { isValid: false, error: `Question attempt at index ${i} missing 'categoryId' field` };
+                }
+
+                // Check numeric and boolean fields
+                if (typeof question.selectedOption !== 'number') {
+                    return { isValid: false, error: `Question attempt at index ${i} has invalid 'selectedOption' field` };
+                }
+
+                if (typeof question.correctOption !== 'number') {
+                    return { isValid: false, error: `Question attempt at index ${i} has invalid 'correctOption' field` };
+                }
+
+                if (typeof question.isCorrect !== 'boolean') {
+                    return { isValid: false, error: `Question attempt at index ${i} has invalid 'isCorrect' field` };
+                }
+
+                // timeSpent might not exist in older data
+                if ('timeSpent' in question && typeof question.timeSpent !== 'number') {
+                    return { isValid: false, error: `Question attempt at index ${i} has invalid 'timeSpent' field` };
+                }
+            }
+        }
+
+        return { isValid: true };
+    } catch (error) {
+        return {
+            isValid: false,
+            error: `Validation error: ${error instanceof Error ? error.message : String(error)}`
+        };
     }
 }

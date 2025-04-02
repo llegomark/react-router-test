@@ -28,6 +28,7 @@ import {
 import { InfoIcon } from "lucide-react";
 import { Skeleton } from "../components/ui/skeleton";
 import { QueryErrorBoundary } from "../components/QueryErrorBoundary";
+import { DataManagementCard } from "../components/DataManagementCard";
 
 // Colors for charts
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -298,6 +299,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                     </Card>
                                 )}
                             </QueryErrorBoundary>
+                            <DataManagementCard />
                         </div>
                     </TabsContent>
 

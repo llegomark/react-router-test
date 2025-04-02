@@ -199,9 +199,3 @@ export function useImprovementData() {
     const { data: progress } = useProgressData();
     return useQuery(improvementDataOptions(progress));
 }
-
-// Helper function to invalidate all dashboard queries to force a refresh
-export function invalidateDashboardQueries() {
-    const queryClient = useQueryClient();
-    return queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
-}
