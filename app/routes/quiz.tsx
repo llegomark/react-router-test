@@ -103,7 +103,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (!quizAttemptId) {
         // If we don't have an attempt ID, something went wrong
         console.error("Missing quiz attempt ID in form submission");
-        return redirect(`/quiz/${categoryId}`);
+        return redirect(`/reviewer/${categoryId}`);
     }
     // Calculate the new score
     const newScore = isTimeUp ? currentScore : (isCorrect ? currentScore + 1 : currentScore);
@@ -121,12 +121,12 @@ export async function action({ request }: Route.ActionArgs) {
             return redirect(`/results?score=${newScore}&total=${totalQuestions}&category=${categoryId}&attempt=${attemptId}`);
         } else {
             console.error("Missing quiz attempt ID in form submission");
-            return redirect(`/quiz/${categoryId}`);
+            return redirect(`/reviewer/${categoryId}`);
         }
     }
 
     // Otherwise, go to the next question
-    return redirect(`/quiz/${categoryId}?q=${currentQuestionIndex + 1}&score=${newScore}&attempt=${quizAttemptId}`);
+    return redirect(`/reviewer/${categoryId}?q=${currentQuestionIndex + 1}&score=${newScore}&attempt=${quizAttemptId}`);
 }
 
 export default function Quiz({ loaderData }: Route.ComponentProps) {
@@ -185,7 +185,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
 
             // If the ID from the URL doesn't match the one we got, update the URL
             if (attempt.id !== effectiveAttemptId) {
-                const newUrl = `/quiz/${categoryId}?q=${currentQuestionIndex}&score=${currentScore}&attempt=${attempt.id}`;
+                const newUrl = `/reviewer/${categoryId}?q=${currentQuestionIndex}&score=${currentScore}&attempt=${attempt.id}`;
                 console.log("Updating URL to include correct attempt ID:", newUrl);
                 window.history.replaceState(null, '', newUrl);
             }
@@ -311,7 +311,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                     <h2 className="text-yellow-700 font-medium">Question not found</h2>
                     <p className="text-sm mt-2">The requested question could not be found.</p>
                     <Link
-                        to={`/quiz/${categoryId}`}
+                        to={`/reviewer/${categoryId}`}
                         className="mt-4 inline-block text-sm text-blue-600 hover:underline"
                     >
                         Start from beginning

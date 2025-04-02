@@ -114,7 +114,7 @@ export default function Results({ loaderData }: Route.ComponentProps) {
             <Card className="mb-4">
                 <CardHeader className="text-center p-4 pb-0">
                     <div className="mx-auto mb-2">{icon}</div>
-                    <h2 className="text-base font-medium">Quiz Results</h2>
+                    <h2 className="text-base font-medium">Review Results</h2>
                     <p className="text-xs text-gray-600 mt-1">{message}</p>
                 </CardHeader>
 
@@ -186,7 +186,7 @@ export default function Results({ loaderData }: Route.ComponentProps) {
                         asChild
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white h-9 text-sm"
                     >
-                        <Link to={`/quiz/${categoryId}`}>
+                        <Link to={`/reviewer/${categoryId}`}>
                             <div className="flex items-center gap-1">
                                 <RefreshCw className="h-3.5 w-3.5" />
                                 <span>Try Again</span>

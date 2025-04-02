@@ -114,11 +114,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <CategoryCardSkeleton key={index} />
           ))}
         </div>
-
-        <footer className="mt-8 text-center text-xs text-gray-600">
-          <p>DepEd NQESH Reviewer © 2025</p>
-          <p className="mt-1">This is a practice tool and is not affiliated with the Department of Education</p>
-        </footer>
       </div>
     );
   }
@@ -180,17 +175,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 variant="outline"
                 className="w-full text-xs h-8 border-blue-600 text-blue-600 hover:bg-blue-50"
               >
-                <Link to={`/quiz/${category.id}`}>Start Practice</Link>
+                <Link to={`/reviewer/${category.id}`}>Start Practice</Link>
               </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
-
-      <footer className="mt-8 text-center text-xs text-gray-600">
-        <p>DepEd NQESH Reviewer © 2025</p>
-        <p className="mt-1">This is a practice tool and is not affiliated with the Department of Education</p>
-      </footer>
     </div>
   );
 }

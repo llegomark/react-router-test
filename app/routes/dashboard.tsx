@@ -167,7 +167,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                         <Card>
                             <CardHeader className="pb-2">
                                 <div className="flex items-center gap-1">
-                                    <CardTitle className="text-sm font-medium text-gray-500">Quiz Attempts</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-gray-500">Review Attempts</CardTitle>
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <InfoIcon className="h-3.5 w-3.5 text-gray-400" />
@@ -267,7 +267,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="text-base">Recent Activity</CardTitle>
-                                            <CardDescription>Your latest quiz attempts</CardDescription>
+                                            <CardDescription>Your latest review attempts</CardDescription>
                                         </CardHeader>
                                         <CardContent>
                                             {recentAttempts.length > 0 ? (
@@ -292,7 +292,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <p className="text-center text-gray-500 py-10">No recent quiz attempts</p>
+                                                <p className="text-center text-gray-500 py-10">No recent review attempts</p>
                                             )}
                                         </CardContent>
                                     </Card>
