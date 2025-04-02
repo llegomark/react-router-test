@@ -14,7 +14,7 @@ export function Footer() {
     ];
 
     return (
-        <footer className="bg-gray-50 border-t mt-8">
+        <footer className="bg-gray-50 border-t">
             <div className="max-w-4xl mx-auto px-4 py-6">
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                     {/* App info */}

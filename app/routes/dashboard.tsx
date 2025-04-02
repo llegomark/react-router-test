@@ -8,7 +8,7 @@ import {
     useCategoryPerformance,
     useTimeMetrics,
     useDashboardMetrics,
-    useDailyProgress // *** NEW: Import daily progress hook ***
+    useDailyProgress
 } from "../lib/dashboard-queries";
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle
@@ -29,6 +29,11 @@ import { InfoIcon } from "lucide-react";
 import { Skeleton } from "../components/ui/skeleton";
 import { QueryErrorBoundary } from "../components/QueryErrorBoundary";
 import { DataManagementCard } from "../components/DataManagementCard";
+
+// Import our new chart components
+import AccuracyVsTimeChart from "../components/AccuracyVsTimeChart";
+import FirstVsOverallChart from "../components/FirstVsOverallChart";
+import QuizScoreDistribution from "../components/QuizScoreDistribution";
 
 // Colors for charts
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -139,7 +144,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
     const { data: categoryPerformance, isLoading: categoryLoading } = useCategoryPerformance();
     const { data: timeMetrics, isLoading: timeLoading } = useTimeMetrics();
-    // *** NEW: Use daily progress hook ***
     const { data: dailyProgressData, isLoading: dailyProgressLoading } = useDailyProgress();
 
     // Fall back to loader data if queries haven't loaded yet
@@ -152,7 +156,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         ? Math.round((correctAnswers / questionsAnswered) * 100)
         : 0;
 
-    // *** NEW: Date formatter for XAxis ***
+    // Date formatter for XAxis
     const formatDateTick = (tickItem: string) => {
         // tickItem is expected to be "YYYY-MM-DD"
         try {
@@ -239,11 +243,12 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                 )}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-                    <TabsList className="mb-4">
+                    <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap p-1 h-auto justify-start">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="categories">Categories</TabsTrigger>
                         <TabsTrigger value="time">Time Analysis</TabsTrigger>
-                        <TabsTrigger value="progress">Progress</TabsTrigger> {/* Tab name stays same */}
+                        <TabsTrigger value="progress">Progress</TabsTrigger>
+                        <TabsTrigger value="insights">Insights</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="overview">
@@ -408,24 +413,20 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                         )}
                     </TabsContent>
 
-                    {/* *** UPDATED: Progress Tab Content *** */}
                     <TabsContent value="progress">
-                        {dailyProgressLoading ? ( // Use new loading state
+                        {dailyProgressLoading ? (
                             <LoadingChart />
                         ) : (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Progress Over Time</CardTitle>
-                                    {/* Updated description */}
                                     <CardDescription>Your average daily performance trend</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    {/* Use new data and check length > 1 */}
                                     {dailyProgressData && dailyProgressData.length > 1 ? (
                                         <ResponsiveContainer width="100%" height={300}>
                                             <LineChart data={dailyProgressData}>
                                                 <CartesianGrid strokeDasharray="3 3" />
-                                                {/* Update XAxis dataKey and add tickFormatter */}
                                                 <XAxis
                                                     dataKey="date"
                                                     tickFormatter={formatDateTick}
@@ -436,7 +437,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                                 <Legend />
                                                 <Line
                                                     type="monotone"
-                                                    dataKey="avgScore" // Update Line dataKey
+                                                    dataKey="avgScore"
                                                     stroke="#10b981"
                                                     strokeWidth={2}
                                                     dot={{ r: 4 }}
@@ -445,7 +446,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                             </LineChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        // Updated message for insufficient data
                                         <p className="text-center text-gray-500 py-10">
                                             Complete quizzes on at least two different days to track progress.
                                         </p>
@@ -454,8 +454,32 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                             </Card>
                         )}
                     </TabsContent>
-                    {/* *** END UPDATED: Progress Tab Content *** */}
 
+                    {/* New Insights Tab with our new charts */}
+                    <TabsContent value="insights">
+                        <div className="grid grid-cols-1 gap-8">
+                            <Card className="mb-4">
+                                <CardHeader>
+                                    <CardTitle className="text-base">Learning Performance Insights</CardTitle>
+                                    <CardDescription>
+                                        Analyze patterns in your learning behavior and performance
+                                    </CardDescription>
+                                </CardHeader>
+                            </Card>
+
+                            <QueryErrorBoundary>
+                                <AccuracyVsTimeChart />
+                            </QueryErrorBoundary>
+
+                            <QueryErrorBoundary>
+                                <FirstVsOverallChart />
+                            </QueryErrorBoundary>
+
+                            <QueryErrorBoundary>
+                                <QuizScoreDistribution />
+                            </QueryErrorBoundary>
+                        </div>
+                    </TabsContent>
                 </Tabs>
 
                 <div className="flex justify-center">
