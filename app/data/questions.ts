@@ -114,6 +114,21 @@ export const questions: QuizQuestion[] = [
         correctOptionIndex: 2,
         explanation: "Data-driven decision-making is crucial in educational management because it provides objective evidence to inform decision-making and improve outcomes. This allows school leaders to make informed choices based on data rather than relying solely on intuition or personal biases."
     },
+    {
+        id: "mgmt5",
+        categoryId: "management",
+        question: "Based on the financial data provided below for School Year 2024-2025, which budget allocation category shows the highest percentage increase from the previous school year?\n\n| Budget Category | SY 2023-2024 | SY 2024-2025 | % Change |\n| --------------- | -----------: | -----------: | -------: |\n| Instructional Materials | ₱250,000 | ₱325,000 | 30% |\n| Facility Maintenance | ₱180,000 | ₱216,000 | 20% |\n| Teacher Development | ₱120,000 | ₱168,000 | 40% |\n| Student Activities | ₱90,000 | ₱103,500 | 15% |\n| ICT Resources | ₱150,000 | ₱187,500 | 25% |",
+        options: [
+            "Instructional Materials",
+            "Facility Maintenance",
+            "Teacher Development",
+            "Student Activities",
+            "ICT Resources"
+        ],
+        correctOptionIndex: 2,
+        explanation: "According to the budget allocation data presented in the table:\n\n| Budget Category | % Change |\n| --------------- | -------: |\n| Instructional Materials | 30% |\n| Facility Maintenance | 20% |\n| **Teacher Development** | **40%** |\n| Student Activities | 15% |\n| ICT Resources | 25% |\n\nTeacher Development shows the highest percentage increase at 40%, which is greater than all other budget categories. This indicates a significant prioritization of professional development resources for teaching staff in the new school year budget.",
+        source: "https://www.deped.gov.ph/wp-content/uploads/2024/01/DO_s2024_01.pdf"
+    },
 
     // Instructional Leadership questions
     {

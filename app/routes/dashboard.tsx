@@ -1,6 +1,5 @@
 // app/routes/dashboard.tsx
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
 import type { Route } from "./+types/dashboard";
 import type { QuizAttempt } from "../types/progress";
 import { getProgress, debugLocalStorage } from "../services/progressStorage";
@@ -507,15 +506,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                         </div>
                     </TabsContent>
                 </Tabs>
-
-                <div className="flex justify-center">
-                    <Link
-                        to="/"
-                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                    >
-                        Return to Categories
-                    </Link>
-                </div>
             </div>
         </TooltipProvider>
     );

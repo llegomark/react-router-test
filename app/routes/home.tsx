@@ -218,7 +218,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 variant="outline"
                 className="w-full text-xs h-8 border-blue-600 text-blue-600 hover:bg-blue-50"
               >
-                <Link to={`/reviewer/${category.id}`}>Start Practice</Link>
+                <Link to={`/reviewer/${category.id}`}>Start Review</Link>
               </Button>
             </CardFooter>
           </Card>

@@ -24,6 +24,7 @@ import {
     debugLocalStorage
 } from "../services/progressStorage";
 import { useRecordQuestionAttempt } from "../lib/quiz-mutations";
+import MarkdownRenderer from "../components/MarkdownRenderer";
 
 export const meta: Route.MetaFunction = ({ location, data, params }) => {
     const domain = "https://nqesh.com";
@@ -395,7 +396,11 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
 
             <Card className="mb-4">
                 <CardHeader className="px-4 py-5 border-b">
-                    <div className="text-sm font-medium leading-5">{currentQuestion.question}</div>
+                    <div className="text-sm font-medium leading-5">
+                        <MarkdownRenderer>
+                            {currentQuestion.question}
+                        </MarkdownRenderer>
+                    </div>
                 </CardHeader>
 
                 <CardContent className="p-4">
@@ -475,8 +480,10 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                                             <div className="font-medium mb-1 text-sm">
                                                 {isTimeUp ? "Time's up!" : isCorrect ? "Correct!" : "Incorrect!"}
                                             </div>
-                                            <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
-                                                {currentQuestion.explanation}
+                                            <div className="text-xs text-gray-700">
+                                                <MarkdownRenderer>
+                                                    {currentQuestion.explanation}
+                                                </MarkdownRenderer>
                                             </div>
                                             {/* Added Source Link */}
                                             {currentQuestion.source && (
