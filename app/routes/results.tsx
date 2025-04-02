@@ -100,7 +100,7 @@ export default function Results({ loaderData }: Route.ComponentProps) {
     const slowestQuestion = loaderData?.slowestQuestion || 0;
 
     return (
-        <div className="max-w-md mx-auto px-4 py-6">
+        <div className="max-w-md mx-auto px-4 py-6 mt-6 mb-10">
             <Card className="mb-4">
                 <CardHeader className="text-center p-4 pb-0">
                     <div className="mx-auto mb-2">{icon}</div>

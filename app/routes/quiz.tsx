@@ -26,7 +26,7 @@ import { useRecordQuestionAttempt } from "../lib/quiz-mutations";
 
 export function HydrateFallback() {
     return (
-        <div className="max-w-2xl mx-auto px-4 py-4">
+        <div className="max-w-2xl mx-auto px-4 py-6 mt-6 mb-10">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center text-xs gap-1 text-blue-600">
                     <ChevronLeft className="h-3.5 w-3.5" />
@@ -47,7 +47,7 @@ export function HydrateFallback() {
             </div>
 
             <Card className="mb-4">
-                <CardHeader className="p-4 pb-2 border-b">
+                <CardHeader className="px-4 py-5 border-b">
                     <Skeleton className="h-16 w-full" />
                 </CardHeader>
 
@@ -288,7 +288,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
     // Check for invalid questions
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
         return (
-            <div className="max-w-2xl mx-auto px-4 py-4">
+            <div className="max-w-2xl mx-auto px-4 py-6 mt-6 mb-10">
                 <div className="p-4 bg-red-50 rounded-md">
                     <h2 className="text-red-700 font-medium">No questions available</h2>
                     <p className="text-sm mt-2">Please try another category or check back later.</p>
@@ -306,7 +306,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
     // Check if we have a valid current question
     if (!currentQuestion) {
         return (
-            <div className="max-w-2xl mx-auto px-4 py-4">
+            <div className="max-w-2xl mx-auto px-4 py-6 mt-6 mb-10">
                 <div className="p-4 bg-yellow-50 rounded-md">
                     <h2 className="text-yellow-700 font-medium">Question not found</h2>
                     <p className="text-sm mt-2">The requested question could not be found.</p>
@@ -325,7 +325,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
     const displayOptions = currentQuestion.shuffledOptions || currentQuestion.options;
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-4">
+        <div className="max-w-2xl mx-auto px-4 py-6 mt-6 mb-10">
             <div className="flex items-center justify-between mb-4">
                 <Link
                     to="/"
@@ -352,7 +352,7 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
             )}
 
             <Card className="mb-4">
-                <CardHeader className="p-4 pb-2 border-b">
+                <CardHeader className="px-4 py-5 border-b">
                     <div className="text-sm font-medium leading-5">{currentQuestion.question}</div>
                 </CardHeader>
 
