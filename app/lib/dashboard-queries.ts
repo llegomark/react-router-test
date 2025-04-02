@@ -71,36 +71,46 @@ export function calculateTimeMetrics(progress: UserProgress) {
 
 // Calculate improvement data from progress data
 export function calculateImprovementData(progress: UserProgress) {
-    // Group attempts by week and calculate average scores
-    const attempts = [...progress.quizAttempts].sort((a, b) =>
+    // *** FIX: Filter valid attempts directly inside this function ***
+    const validAttempts = progress.quizAttempts.filter(
+        attempt => attempt.totalQuestions > 0
+    );
+
+    // Sort the valid attempts by date
+    const attempts = [...validAttempts].sort((a, b) =>
         new Date(a.date).getTime() - new Date(b.date).getTime()
     );
+    // *** END FIX ***
 
     if (attempts.length === 0) return [];
 
     const weeklyData: Record<string, { scores: number, count: number }> = {};
     attempts.forEach((attempt) => {
         const weekStart = getWeekStart(new Date(attempt.date));
-        const weekKey = weekStart.toISOString().split('T')[0];
+        const weekKey = weekStart.toISOString().split('T')[0]; // Use YYYY-MM-DD as key
 
         if (!weeklyData[weekKey]) {
             weeklyData[weekKey] = { scores: 0, count: 0 };
         }
 
-        weeklyData[weekKey].scores += (attempt.score / attempt.totalQuestions) * 100;
+        // Calculate percentage score for the attempt
+        const percentageScore = (attempt.score / attempt.totalQuestions) * 100;
+        weeklyData[weekKey].scores += percentageScore;
         weeklyData[weekKey].count++;
     });
 
     return Object.entries(weeklyData).map(([week, data]) => ({
         week,
+        // Ensure count is checked before division
         avgScore: data.count > 0 ? Math.round(data.scores / data.count) : 0
     }));
 }
 
-// Helper function for getting week start date
+// Helper function for getting week start date (Sunday)
 function getWeekStart(date: Date): Date {
     const result = new Date(date);
-    result.setDate(result.getDate() - result.getDay());
+    result.setDate(result.getDate() - result.getDay()); // 0 = Sunday, 1 = Monday, etc.
+    result.setHours(0, 0, 0, 0); // Normalize time to start of the day
     return result;
 }
 

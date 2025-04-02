@@ -254,7 +254,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                                     </BarChart>
                                                 </ResponsiveContainer>
                                             ) : (
-                                                <p className="text-center text-gray-500 py-10">Complete quizzes to see your performance</p>
+                                                <p className="text-center text-gray-500 py-10">Complete reviewing over at least two different weeks to track progress</p>
                                             )}
                                         </CardContent>
                                     </Card>
@@ -360,7 +360,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                             </div>
                                         </>
                                     ) : (
-                                        <p className="text-center text-gray-500 py-10">Complete quizzes to see category performance</p>
+                                        <p className="text-center text-gray-500 py-10">Complete reviewing to see category performance</p>
                                     )}
                                 </CardContent>
                             </Card>
@@ -387,7 +387,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                             </BarChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        <p className="text-center text-gray-500 py-10">Complete quizzes to see time analysis</p>
+                                        <p className="text-center text-gray-500 py-10">Complete reviewing to see time analysis</p>
                                     )}
                                 </CardContent>
                             </Card>
@@ -423,7 +423,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                             </LineChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        <p className="text-center text-gray-500 py-10">Complete more quizzes to track progress over time</p>
+                                        <p className="text-center text-gray-500 py-10">Complete more review to track progress over time</p>
                                     )}
                                 </CardContent>
                             </Card>

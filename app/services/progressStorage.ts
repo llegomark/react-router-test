@@ -36,7 +36,26 @@ function loadFromStorage(): UserProgress {
             return getInitialProgress();
         }
 
-        return JSON.parse(storedData) as UserProgress;
+        const parsedData = JSON.parse(storedData);
+
+        // *** FIX: Add basic validation after parsing ***
+        if (
+            typeof parsedData === 'object' &&
+            parsedData !== null &&
+            Array.isArray(parsedData.quizAttempts) &&
+            Array.isArray(parsedData.questionAttempts)
+        ) {
+            // Basic structure seems okay, proceed
+            return parsedData as UserProgress;
+        } else {
+            // Data is malformed, return initial state and log error
+            console.error('Error loading progress: Malformed data structure found in localStorage. Resetting progress.', parsedData);
+            // Optionally clear the bad data
+            // localStorage.removeItem(STORAGE_KEY);
+            return getInitialProgress();
+        }
+        // *** END FIX ***
+
     } catch (error) {
         console.error('Error loading progress from localStorage:', error);
         return getInitialProgress();
@@ -426,29 +445,32 @@ function validateProgressData(data: any): { isValid: boolean; error?: string } {
                 const attempt = data.quizAttempts[i];
 
                 // Check required string fields
+                if (!attempt || typeof attempt !== 'object') {
+                    return { isValid: false, error: `Quiz attempt at index ${i} is not an object` };
+                }
                 if (!attempt.id || typeof attempt.id !== 'string') {
-                    return { isValid: false, error: `Quiz attempt at index ${i} missing 'id' field` };
+                    return { isValid: false, error: `Quiz attempt at index ${i} missing or invalid 'id' field` };
                 }
-
                 if (!attempt.categoryId || typeof attempt.categoryId !== 'string') {
-                    return { isValid: false, error: `Quiz attempt at index ${i} missing 'categoryId' field` };
+                    return { isValid: false, error: `Quiz attempt at index ${i} missing or invalid 'categoryId' field` };
                 }
-
                 if (!attempt.date || typeof attempt.date !== 'string') {
-                    return { isValid: false, error: `Quiz attempt at index ${i} missing 'date' field` };
+                    return { isValid: false, error: `Quiz attempt at index ${i} missing or invalid 'date' field` };
                 }
 
                 // Check required numeric fields
-                if (typeof attempt.score !== 'number') {
+                if (typeof attempt.score !== 'number' || !Number.isInteger(attempt.score) || attempt.score < 0) {
                     return { isValid: false, error: `Quiz attempt at index ${i} has invalid 'score' field` };
                 }
-
-                if (typeof attempt.totalQuestions !== 'number') {
+                if (typeof attempt.totalQuestions !== 'number' || !Number.isInteger(attempt.totalQuestions) || attempt.totalQuestions < 0) {
                     return { isValid: false, error: `Quiz attempt at index ${i} has invalid 'totalQuestions' field` };
                 }
-
+                // Ensure score is not greater than totalQuestions
+                if (attempt.score > attempt.totalQuestions) {
+                    return { isValid: false, error: `Quiz attempt at index ${i} has score (${attempt.score}) greater than totalQuestions (${attempt.totalQuestions})` };
+                }
                 // timeSpent might not exist in older data, so we'll just check type if it exists
-                if ('timeSpent' in attempt && typeof attempt.timeSpent !== 'number') {
+                if ('timeSpent' in attempt && (typeof attempt.timeSpent !== 'number' || attempt.timeSpent < 0)) {
                     return { isValid: false, error: `Quiz attempt at index ${i} has invalid 'timeSpent' field` };
                 }
             }
@@ -460,37 +482,35 @@ function validateProgressData(data: any): { isValid: boolean; error?: string } {
                 const question = data.questionAttempts[i];
 
                 // Check required string fields
+                if (!question || typeof question !== 'object') {
+                    return { isValid: false, error: `Question attempt at index ${i} is not an object` };
+                }
                 if (!question.id || typeof question.id !== 'string') {
-                    return { isValid: false, error: `Question attempt at index ${i} missing 'id' field` };
+                    return { isValid: false, error: `Question attempt at index ${i} missing or invalid 'id' field` };
                 }
-
                 if (!question.quizAttemptId || typeof question.quizAttemptId !== 'string') {
-                    return { isValid: false, error: `Question attempt at index ${i} missing 'quizAttemptId' field` };
+                    return { isValid: false, error: `Question attempt at index ${i} missing or invalid 'quizAttemptId' field` };
                 }
-
                 if (!question.questionId || typeof question.questionId !== 'string') {
-                    return { isValid: false, error: `Question attempt at index ${i} missing 'questionId' field` };
+                    return { isValid: false, error: `Question attempt at index ${i} missing or invalid 'questionId' field` };
                 }
-
                 if (!question.categoryId || typeof question.categoryId !== 'string') {
-                    return { isValid: false, error: `Question attempt at index ${i} missing 'categoryId' field` };
+                    return { isValid: false, error: `Question attempt at index ${i} missing or invalid 'categoryId' field` };
                 }
 
                 // Check numeric and boolean fields
-                if (typeof question.selectedOption !== 'number') {
+                // Allow -1 for selectedOption (timeout)
+                if (typeof question.selectedOption !== 'number' || !Number.isInteger(question.selectedOption)) {
                     return { isValid: false, error: `Question attempt at index ${i} has invalid 'selectedOption' field` };
                 }
-
-                if (typeof question.correctOption !== 'number') {
+                if (typeof question.correctOption !== 'number' || !Number.isInteger(question.correctOption) || question.correctOption < 0) {
                     return { isValid: false, error: `Question attempt at index ${i} has invalid 'correctOption' field` };
                 }
-
                 if (typeof question.isCorrect !== 'boolean') {
                     return { isValid: false, error: `Question attempt at index ${i} has invalid 'isCorrect' field` };
                 }
-
                 // timeSpent might not exist in older data
-                if ('timeSpent' in question && typeof question.timeSpent !== 'number') {
+                if ('timeSpent' in question && (typeof question.timeSpent !== 'number' || question.timeSpent < 0)) {
                     return { isValid: false, error: `Question attempt at index ${i} has invalid 'timeSpent' field` };
                 }
             }
