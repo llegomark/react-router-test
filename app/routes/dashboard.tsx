@@ -7,8 +7,8 @@ import { getProgress, debugLocalStorage } from "../services/progressStorage";
 import {
     useCategoryPerformance,
     useTimeMetrics,
-    useImprovementData,
-    useDashboardMetrics
+    useDashboardMetrics,
+    useDailyProgress // *** NEW: Import daily progress hook ***
 } from "../lib/dashboard-queries";
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle
@@ -139,7 +139,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
     const { data: categoryPerformance, isLoading: categoryLoading } = useCategoryPerformance();
     const { data: timeMetrics, isLoading: timeLoading } = useTimeMetrics();
-    const { data: improvementData, isLoading: improvementLoading } = useImprovementData();
+    // *** NEW: Use daily progress hook ***
+    const { data: dailyProgressData, isLoading: dailyProgressLoading } = useDailyProgress();
 
     // Fall back to loader data if queries haven't loaded yet
     const totalAttempts = metrics?.totalAttempts ?? loaderData?.totalAttempts ?? 0;
@@ -150,6 +151,19 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     const overallAccuracy = questionsAnswered > 0
         ? Math.round((correctAnswers / questionsAnswered) * 100)
         : 0;
+
+    // *** NEW: Date formatter for XAxis ***
+    const formatDateTick = (tickItem: string) => {
+        // tickItem is expected to be "YYYY-MM-DD"
+        try {
+            // Add time and Z to ensure it's parsed as UTC, preventing potential timezone shifts
+            const date = new Date(tickItem + 'T00:00:00Z');
+            // Format as MM/DD (or locale equivalent)
+            return date.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' });
+        } catch (e) {
+            return tickItem; // Fallback to original string if parsing fails
+        }
+    };
 
     return (
         <TooltipProvider>
@@ -229,7 +243,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="categories">Categories</TabsTrigger>
                         <TabsTrigger value="time">Time Analysis</TabsTrigger>
-                        <TabsTrigger value="progress">Progress</TabsTrigger>
+                        <TabsTrigger value="progress">Progress</TabsTrigger> {/* Tab name stays same */}
                     </TabsList>
 
                     <TabsContent value="overview">
@@ -394,27 +408,35 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                         )}
                     </TabsContent>
 
+                    {/* *** UPDATED: Progress Tab Content *** */}
                     <TabsContent value="progress">
-                        {improvementLoading ? (
+                        {dailyProgressLoading ? ( // Use new loading state
                             <LoadingChart />
                         ) : (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Progress Over Time</CardTitle>
-                                    <CardDescription>Your improvement trajectory</CardDescription>
+                                    {/* Updated description */}
+                                    <CardDescription>Your average daily performance trend</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    {improvementData && improvementData.length > 1 ? (
+                                    {/* Use new data and check length > 1 */}
+                                    {dailyProgressData && dailyProgressData.length > 1 ? (
                                         <ResponsiveContainer width="100%" height={300}>
-                                            <LineChart data={improvementData}>
+                                            <LineChart data={dailyProgressData}>
                                                 <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-                                                <YAxis label={{ value: 'Score %', angle: -90, position: 'insideLeft' }} />
+                                                {/* Update XAxis dataKey and add tickFormatter */}
+                                                <XAxis
+                                                    dataKey="date"
+                                                    tickFormatter={formatDateTick}
+                                                    tick={{ fontSize: 12 }}
+                                                />
+                                                <YAxis label={{ value: 'Avg Score %', angle: -90, position: 'insideLeft' }} />
                                                 <ChartTooltip formatter={(value) => [`${value}%`, 'Average Score']} />
                                                 <Legend />
                                                 <Line
                                                     type="monotone"
-                                                    dataKey="avgScore"
+                                                    dataKey="avgScore" // Update Line dataKey
                                                     stroke="#10b981"
                                                     strokeWidth={2}
                                                     dot={{ r: 4 }}
@@ -423,12 +445,17 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                             </LineChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        <p className="text-center text-gray-500 py-10">Complete more quizzes to track progress over time</p>
+                                        // Updated message for insufficient data
+                                        <p className="text-center text-gray-500 py-10">
+                                            Complete quizzes on at least two different days to track progress.
+                                        </p>
                                     )}
                                 </CardContent>
                             </Card>
                         )}
                     </TabsContent>
+                    {/* *** END UPDATED: Progress Tab Content *** */}
+
                 </Tabs>
 
                 <div className="flex justify-center">

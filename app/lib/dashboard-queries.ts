@@ -10,7 +10,8 @@ export const dashboardKeys = {
     metrics: () => [...dashboardKeys.all, 'metrics'] as const,
     categoryPerformance: () => [...dashboardKeys.all, 'categoryPerformance'] as const,
     timeMetrics: () => [...dashboardKeys.all, 'timeMetrics'] as const,
-    improvementData: () => [...dashboardKeys.all, 'improvementData'] as const,
+    // New key for daily progress
+    dailyProgress: () => [...dashboardKeys.all, 'dailyProgress'] as const,
 };
 
 // Data fetching functions
@@ -69,40 +70,39 @@ export function calculateTimeMetrics(progress: UserProgress) {
     }));
 }
 
-// Calculate improvement data from progress data
-export function calculateImprovementData(progress: UserProgress) {
-    // Group attempts by week and calculate average scores
-    const attempts = [...progress.quizAttempts].sort((a, b) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+// *** NEW: Calculate daily progress data ***
+export function calculateDailyProgress(progress: UserProgress) {
+    // Filter out invalid attempts and sort by date
+    const validAttempts = [...progress.quizAttempts]
+        .filter(attempt => attempt.totalQuestions > 0) // Ensure attempt has questions
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    if (attempts.length === 0) return [];
+    if (validAttempts.length === 0) return [];
 
-    const weeklyData: Record<string, { scores: number, count: number }> = {};
-    attempts.forEach((attempt) => {
-        const weekStart = getWeekStart(new Date(attempt.date));
-        const weekKey = weekStart.toISOString().split('T')[0];
+    const dailyData: Record<string, { scoreSum: number, count: number }> = {};
 
-        if (!weeklyData[weekKey]) {
-            weeklyData[weekKey] = { scores: 0, count: 0 };
+    validAttempts.forEach((attempt) => {
+        // Group by YYYY-MM-DD format
+        const dateKey = new Date(attempt.date).toISOString().split('T')[0];
+
+        if (!dailyData[dateKey]) {
+            dailyData[dateKey] = { scoreSum: 0, count: 0 };
         }
 
-        weeklyData[weekKey].scores += (attempt.score / attempt.totalQuestions) * 100;
-        weeklyData[weekKey].count++;
+        // Calculate percentage score for this attempt
+        const percentageScore = (attempt.score / attempt.totalQuestions) * 100;
+
+        dailyData[dateKey].scoreSum += percentageScore;
+        dailyData[dateKey].count++;
     });
 
-    return Object.entries(weeklyData).map(([week, data]) => ({
-        week,
-        avgScore: data.count > 0 ? Math.round(data.scores / data.count) : 0
+    // Convert grouped data to array format for the chart, calculating average
+    return Object.entries(dailyData).map(([date, data]) => ({
+        date, // Keep the YYYY-MM-DD format for sorting
+        avgScore: data.count > 0 ? Math.round(data.scoreSum / data.count) : 0
     }));
 }
-
-// Helper function for getting week start date
-function getWeekStart(date: Date): Date {
-    const result = new Date(date);
-    result.setDate(result.getDate() - result.getDay());
-    return result;
-}
+// *** END NEW FUNCTION ***
 
 // Helper function for category names
 function getCategoryName(categoryId: string): string {
@@ -120,8 +120,7 @@ function getCategoryName(categoryId: string): string {
 export const progressDataOptions = () => queryOptions({
     queryKey: dashboardKeys.progress(),
     queryFn: fetchProgress,
-    // Reduce stale time to prompt more frequent refetching
-    staleTime: 1000 * 5, // Consider data stale after 5 seconds
+    staleTime: 1000 * 5,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
 });
@@ -131,13 +130,11 @@ export const dashboardMetricsOptions = (progress: UserProgress | undefined) => q
     queryFn: () => {
         if (!progress) return null;
 
-        // Filter out attempts with no questions answered
         const validAttempts = progress.quizAttempts.filter(attempt =>
             progress.questionAttempts.some(q => q.quizAttemptId === attempt.id) &&
             attempt.totalQuestions > 0
         );
 
-        // Get recent attempts
         const recentAttempts = validAttempts
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
             .slice(0, 5);
@@ -150,8 +147,7 @@ export const dashboardMetricsOptions = (progress: UserProgress | undefined) => q
         };
     },
     enabled: !!progress,
-    // Keep this data in sync with progress data
-    staleTime: 1000 * 5, // Consider data stale after 5 seconds
+    staleTime: 1000 * 5,
 });
 
 export const categoryPerformanceOptions = (progress: UserProgress | undefined) => queryOptions({
@@ -168,12 +164,14 @@ export const timeMetricsOptions = (progress: UserProgress | undefined) => queryO
     staleTime: 1000 * 5,
 });
 
-export const improvementDataOptions = (progress: UserProgress | undefined) => queryOptions({
-    queryKey: dashboardKeys.improvementData(),
-    queryFn: () => progress ? calculateImprovementData(progress) : [],
+// *** NEW: Query options for daily progress ***
+export const dailyProgressOptions = (progress: UserProgress | undefined) => queryOptions({
+    queryKey: dashboardKeys.dailyProgress(),
+    queryFn: () => progress ? calculateDailyProgress(progress) : [],
     enabled: !!progress,
-    staleTime: 1000 * 5,
+    staleTime: 1000 * 60 * 5, // 5 minutes staleTime as requested
 });
+// *** END NEW OPTIONS ***
 
 // React Query hooks
 export function useProgressData() {
@@ -195,7 +193,8 @@ export function useTimeMetrics() {
     return useQuery(timeMetricsOptions(progress));
 }
 
-export function useImprovementData() {
+// *** NEW: Hook for daily progress ***
+export function useDailyProgress() {
     const { data: progress } = useProgressData();
-    return useQuery(improvementDataOptions(progress));
+    return useQuery(dailyProgressOptions(progress));
 }

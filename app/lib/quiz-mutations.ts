@@ -4,7 +4,7 @@ import {
     recordQuestionAttempt as recordQuestionAttemptFn,
     finalizeQuizAttempt as finalizeQuizAttemptFn
 } from '../services/progressStorage';
-import { dashboardKeys } from './dashboard-queries';
+import { dashboardKeys } from './dashboard-queries'; // Import dashboardKeys
 import { toast } from 'sonner';
 import type { UserProgress, QuestionAttempt } from '../types/progress';
 
@@ -69,6 +69,9 @@ export function useRecordQuestionAttempt() {
         },
         onSettled: () => {
             // Always refetch query after error or success:
+            // We only need to invalidate the main progress query here,
+            // the dependent queries (metrics, categories, daily) will refetch automatically
+            // due to their dependency on the progress data if staleTime is configured appropriately.
             queryClient.invalidateQueries({ queryKey: dashboardKeys.progress() });
         },
     });
@@ -89,10 +92,17 @@ export function useFinalizeQuizAttempt() {
             });
         },
         onSuccess: () => {
+            // Invalidate all dashboard queries to refresh the data
+            // including the new daily progress
             queryClient.invalidateQueries({ queryKey: dashboardKeys.progress() });
+            queryClient.invalidateQueries({ queryKey: dashboardKeys.metrics() });
+            queryClient.invalidateQueries({ queryKey: dashboardKeys.categoryPerformance() });
+            queryClient.invalidateQueries({ queryKey: dashboardKeys.timeMetrics() });
+            queryClient.invalidateQueries({ queryKey: dashboardKeys.dailyProgress() }); // *** NEW: Invalidate daily progress ***
+            toast.success("Quiz attempt finalized and progress saved."); // Optional success message
         },
         onError: () => {
-            toast.error("Failed to finalize quiz attempt."); // Display error toast
+            toast.error("Failed to finalize quiz attempt.");
         }
     });
 }
