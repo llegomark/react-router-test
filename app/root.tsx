@@ -10,6 +10,8 @@ import {
 import { QueryProvider } from "./components/QueryProvider";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -36,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="min-h-screen flex flex-col">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -76,7 +78,13 @@ export default function App() {
             onReset={reset}
             fallbackRender={QueryErrorFallback}
           >
-            <Outlet />
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1">
+                <Outlet />
+              </main>
+              <Footer />
+            </div>
           </ReactErrorBoundary>
         )}
       </QueryErrorResetBoundary>
@@ -101,14 +109,22 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1">
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
+            <h1 className="text-2xl font-semibold">{message}</h1>
+            <p className="text-muted-foreground text-sm">{details}</p>
+            {stack && (
+              <pre className="w-full p-4 overflow-x-auto bg-gray-50 rounded-md text-xs">
+                <code>{stack}</code>
+              </pre>
+            )}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }

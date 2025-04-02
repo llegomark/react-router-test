@@ -101,16 +101,6 @@ export default function Results({ loaderData }: Route.ComponentProps) {
 
     return (
         <div className="max-w-md mx-auto px-4 py-6">
-            <div className="flex items-center justify-between mb-4">
-                <Link
-                    to="/"
-                    className="flex items-center text-xs gap-1 text-blue-600 hover:text-blue-700 hover:underline"
-                >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                    Back to Categories
-                </Link>
-            </div>
-
             <Card className="mb-4">
                 <CardHeader className="text-center p-4 pb-0">
                     <div className="mx-auto mb-2">{icon}</div>
