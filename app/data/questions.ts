@@ -14,7 +14,8 @@ export const questions: QuizQuestion[] = [
             "Providing concrete rewards for teachers who meet performance targets"
         ],
         correctOptionIndex: 1,
-        explanation: "Transformational leadership focuses on inspiring and motivating followers to exceed ordinary expectations and create meaningful change. It emphasizes vision, inspiration, and intellectual stimulation rather than just task completion or hierarchical control."
+        explanation: "Transformational leadership focuses on inspiring and motivating followers to exceed ordinary expectations and create meaningful change. It emphasizes vision, inspiration, and intellectual stimulation rather than just task completion or hierarchical control.",
+        source: "https://www.deped.gov.ph/wp-content/uploads/2018/07/DO_s2015_44.pdf"
     },
     {
         id: "lead2",
@@ -27,7 +28,8 @@ export const questions: QuizQuestion[] = [
             "Autocratic leadership"
         ],
         correctOptionIndex: 2,
-        explanation: "Participative leadership is most effective when implementing significant changes that may face resistance. By involving teachers in the decision-making process, they develop ownership of the changes, leading to better implementation and reduced resistance."
+        explanation: "Participative leadership is most effective when implementing significant changes that may face resistance. By involving teachers in the decision-making process, they develop ownership of the changes, leading to better implementation and reduced resistance.",
+        source: "https://www.deped.gov.ph/wp-content/uploads/2018/07/DO_s2015_44.pdf"
     },
     {
         id: "lead3",
@@ -40,7 +42,8 @@ export const questions: QuizQuestion[] = [
             "Focusing solely on academic performance"
         ],
         correctOptionIndex: 1,
-        explanation: "A school leader plays a crucial role in fostering a positive school culture by promoting open communication, collaboration, and mutual respect among students, teachers, and staff. This creates a supportive and inclusive environment that enhances learning and well-being."
+        explanation: "A school leader plays a crucial role in fostering a positive school culture by promoting open communication, collaboration, and mutual respect among students, teachers, and staff. This creates a supportive and inclusive environment that enhances learning and well-being.",
+        source: "https://www.deped.gov.ph/wp-content/uploads/2018/07/DO_s2015_44.pdf"
     },
     {
         id: "lead4",
@@ -53,7 +56,8 @@ export const questions: QuizQuestion[] = [
             "Replacing underperforming teachers"
         ],
         correctOptionIndex: 2,
-        explanation: "Conducting a staff survey to identify concerns and implementing strategies to address them is the most effective action. This demonstrates that the principal values teacher input and is committed to creating a positive work environment."
+        explanation: "Conducting a staff survey to identify concerns and implementing strategies to address them is the most effective action. This demonstrates that the principal values teacher input and is committed to creating a positive work environment.",
+        source: "https://www.deped.gov.ph/wp-content/uploads/2018/07/DO_s2015_44.pdf"
     },
 
     // Educational Management questions
@@ -68,7 +72,8 @@ export const questions: QuizQuestion[] = [
             "To justify budget allocations from the division office"
         ],
         correctOptionIndex: 1,
-        explanation: "The primary purpose of a School Improvement Plan is to provide a strategic roadmap that translates the school's vision into actionable, measurable goals and objectives. It guides the school's efforts toward continuous improvement in student achievement and overall educational quality."
+        explanation: "The primary purpose of a School Improvement Plan is to provide a strategic roadmap that translates the school's vision into actionable, measurable goals and objectives. It guides the school's efforts toward continuous improvement in student achievement and overall educational quality.",
+        source: "https://www.deped.gov.ph/wp-content/uploads/2018/07/DO_s2015_44.pdf"
     },
     {
         id: "mgmt2",

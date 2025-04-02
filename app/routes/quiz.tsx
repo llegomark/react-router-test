@@ -17,7 +17,7 @@ import { Label } from "../components/ui/label";
 import { Separator } from "../components/ui/separator";
 import { Badge } from "../components/ui/badge";
 import { Skeleton } from "../components/ui/skeleton";
-import { CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import {
     startQuizAttempt,
     resetProgressCache,
@@ -478,6 +478,20 @@ export default function Quiz({ loaderData }: Route.ComponentProps) {
                                             <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
                                                 {currentQuestion.explanation}
                                             </div>
+                                            {/* Added Source Link */}
+                                            {currentQuestion.source && (
+                                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                                    <a
+                                                        href={currentQuestion.source}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1.5 text-xs font-medium"
+                                                    >
+                                                        <ExternalLink className="h-3 w-3" />
+                                                        View source reference
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
