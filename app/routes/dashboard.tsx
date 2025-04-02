@@ -35,6 +35,32 @@ import AccuracyVsTimeChart from "../components/AccuracyVsTimeChart";
 import FirstVsOverallChart from "../components/FirstVsOverallChart";
 import QuizScoreDistribution from "../components/QuizScoreDistribution";
 
+export const meta: Route.MetaFunction = ({ location }) => {
+    const domain = "https://nqesh.com";
+    const fullUrl = `${domain}${location.pathname}`;
+    const title = "NQESH Progress Dashboard | Track Your Study Performance - NQESH Reviewer";
+    const description = "Monitor your NQESH preparation progress. View overall scores, category performance, time analysis, daily trends, and detailed insights on your practice attempts.";
+
+    return [
+        { title: title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: fullUrl },
+        { property: "og:type", content: "website" },
+        { property: "og:image", content: `${domain}/og-image-dashboard.png` },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: "NQESH Reviewer Progress Dashboard" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@nqeshreviewer" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: `${domain}/twitter-image-dashboard.png` },
+        { rel: "canonical", href: fullUrl },
+    ];
+};
+
 // Colors for charts
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -173,7 +199,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         <TooltipProvider>
             <div className="max-w-4xl mx-auto px-4 py-6">
                 <header className="mb-6">
-                    <h1 className="text-2xl font-semibold text-blue-800">Your NQESH Progress</h1>
+                    <h1 className="text-2xl font-semibold text-blue-800">NQESH Progress</h1>
                     <p className="text-sm text-gray-600 mt-1">
                         Track your performance and identify areas for improvement
                     </p>

@@ -2,6 +2,32 @@
 import type { Route } from "./+types/copyright";
 import { Separator } from "../components/ui/separator";
 
+export const meta: Route.MetaFunction = ({ location }) => {
+    const domain = "https://nqesh.com";
+    const fullUrl = `${domain}${location.pathname}`;
+    const title = "Copyright Notice & Usage Policy - NQESH Reviewer";
+    const description = "Read the copyright notice and usage restrictions for the NQESH Reviewer application materials created by Eduventure Web Development Services. Understand your rights and responsibilities.";
+
+    return [
+        { title: title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: fullUrl },
+        { property: "og:type", content: "website" },
+        { property: "og:image", content: `${domain}/og-image-copyright.png` },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: "NQESH Reviewer Copyright Notice" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@nqeshreviewer" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: `${domain}/twitter-image-copyright.png` },
+        { rel: "canonical", href: fullUrl },
+    ];
+};
+
 export default function Copyright() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-6">
@@ -12,10 +38,10 @@ export default function Copyright() {
                 <section>
                     <h3 className="font-semibold text-base mb-2">Ownership Statement</h3>
                     <p className="text-gray-700 leading-relaxed">
-                        All questions, answers, explanations, and other review materials presented on NQESH Reviewer Pro are the exclusive intellectual property of Mark Anthony Llego and Eduventure Web Development Services. These materials are protected by Philippine and international copyright laws and treaties.
+                        All questions, answers, explanations, and other review materials presented on NQESH Reviewer Pro are the exclusive intellectual property of Mark Anthony Llego, Arlene Mabag and Eduventure Web Development Services. These materials are protected by Philippine and international copyright laws and treaties.
                     </p>
                     <p className="text-gray-700 font-medium mt-2">
-                        © 2025 Mark Anthony Llego and Eduventure Web Development Services. All rights reserved.
+                        © 2025 Eduventure Web Development Services. All rights reserved.
                     </p>
                 </section>
 

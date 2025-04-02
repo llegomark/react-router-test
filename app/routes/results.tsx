@@ -8,6 +8,35 @@ import { Separator } from "../components/ui/separator";
 import { CheckCircle2, BookOpen, ChevronLeft, RefreshCw, BarChart } from "lucide-react";
 import { getProgress, debugLocalStorage } from "../services/progressStorage";
 
+export const meta: Route.MetaFunction = ({ location }) => {
+    const domain = "https://nqesh.com"; // Replace with your actual domain
+    const searchParams = new URLSearchParams(location.search);
+    const score = searchParams.get('score') || '0';
+    const total = searchParams.get('total') || '0';
+    const fullUrl = `${domain}${location.pathname}${location.search}`;
+    const title = `Your NQESH Quiz Performance: ${score} / ${total} - NQESH Reviewer`;
+    const description = `View your results for the NQESH practice quiz. You scored ${score} out of ${total}. See recommendations and try again or check your dashboard.`;
+
+    return [
+        { title: title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: fullUrl },
+        { property: "og:type", content: "website" },
+        { property: "og:image", content: `${domain}/og-image-results.png` },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: "NQESH Reviewer Quiz Results Page" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@nqeshreviewer" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: `${domain}/twitter-image-results.png` },
+        { rel: "canonical", href: fullUrl },
+    ];
+};
+
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     // Debug localStorage in the loader
     debugLocalStorage();

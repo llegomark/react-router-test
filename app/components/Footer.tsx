@@ -53,28 +53,58 @@ export function Footer() {
                         <h3 className="font-medium mb-2 text-xs">Links</h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                             <Link
-                                to="/"
+                                to="/about"
                                 className="text-muted-foreground hover:text-foreground text-xs"
                             >
-                                Home
+                                About
                             </Link>
                             <Link
-                                to="/dashboard"
+                                to="/faq"
                                 className="text-muted-foreground hover:text-foreground text-xs"
                             >
-                                Dashboard
+                                FAQ
                             </Link>
                             <Link
-                                to="/reviewer/administrative"
+                                to="/pricing"
                                 className="text-muted-foreground hover:text-foreground text-xs"
                             >
-                                Administrative
+                                Pricing
                             </Link>
                             <Link
-                                to="/reviewer/legal"
+                                to="/payment-methods"
                                 className="text-muted-foreground hover:text-foreground text-xs"
                             >
-                                Legal Aspects
+                                Payment Methods
+                            </Link>
+                            <Link
+                                to="/refund-policy"
+                                className="text-muted-foreground hover:text-foreground text-xs"
+                            >
+                                Refund Policy
+                            </Link>
+                            <Link
+                                to="/copyright"
+                                className="text-muted-foreground hover:text-foreground text-xs"
+                            >
+                                Copyright
+                            </Link>
+                            <Link
+                                to="/privacy"
+                                className="text-muted-foreground hover:text-foreground text-xs"
+                            >
+                                Privacy Policy
+                            </Link>
+                            <Link
+                                to="/terms"
+                                className="text-muted-foreground hover:text-foreground text-xs"
+                            >
+                                Terms of Service
+                            </Link>
+                            <Link
+                                to="/contact"
+                                className="text-muted-foreground hover:text-foreground text-xs"
+                            >
+                                Contact Us
                             </Link>
                         </div>
                     </div>
@@ -84,7 +114,7 @@ export function Footer() {
 
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
                     <p className="text-[10px] text-muted-foreground">
-                        &copy; {currentYear} NQESH Reviewer
+                        &copy; {currentYear} Eduventure Web Development Services. All rights reserved.
                     </p>
                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                         <span>Made with</span>

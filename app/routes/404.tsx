@@ -4,6 +4,25 @@ import type { Route } from "./+types/404";
 import { Button } from "../components/ui/button";
 import { FileQuestion, Home } from "lucide-react";
 
+export const meta: Route.MetaFunction = ({ location }) => {
+    const domain = "https://nqesh.com";
+    const fullUrl = `${domain}${location.pathname}`;
+    const title = "Page Not Found (404) - NQESH Reviewer";
+    const description = "Sorry, the page you were looking for could not be found on the NQESH Reviewer site. Navigate back home or try a category link.";
+
+    return [
+        { title: title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: fullUrl },
+        { property: "og:image", content: `${domain}/og-image-404.png` },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: `${domain}/twitter-image-404.png` },
+    ];
+};
+
 export default function NotFound() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-12">

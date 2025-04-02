@@ -25,6 +25,34 @@ import {
 } from "../services/progressStorage";
 import { useRecordQuestionAttempt } from "../lib/quiz-mutations";
 
+export const meta: Route.MetaFunction = ({ location, data, params }) => {
+    const domain = "https://nqesh.com";
+    const categoryId = params.categoryId || 'practice';
+    const categoryName = data?.categoryName || 'Practice Questions';
+    const fullUrl = `${domain}${location.pathname}${location.search}`;
+    const title = `NQESH Practice Questions in ${categoryName} - NQESH Reviewer`;
+    const description = `Take a timed practice quiz for the '${categoryName}' domain of the NQESH exam. Test your knowledge and get instant feedback. Question ${parseInt(location.search.split('q=')[1] || '0', 10) + 1}.`;
+
+    return [
+        { title: title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: fullUrl },
+        { property: "og:type", content: "website" },
+        { property: "og:image", content: `${domain}/og-image-quiz-${categoryId}.png` },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: `NQESH Reviewer Quiz for ${categoryName}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@nqeshreviewer" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: `${domain}/twitter-image-quiz-${categoryId}.png` },
+        { rel: "canonical", href: fullUrl },
+    ];
+};
+
 export function HydrateFallback() {
     return (
         <div className="max-w-2xl mx-auto px-4 py-6 mt-6 mb-10">

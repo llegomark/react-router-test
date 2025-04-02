@@ -7,6 +7,49 @@ import { Button } from "../components/ui/button";
 import { GraduationCap, BookOpen, School, ClipboardList } from "lucide-react";
 import { getQueryClient } from "../lib/query-client";
 import { Skeleton } from "../components/ui/skeleton";
+import { organization } from "@forge42/seo-tools/structured-data/organization";
+
+export const meta: Route.MetaFunction = ({ location }) => {
+  const domain = "https://nqesh.com";
+  const fullUrl = `${domain}${location.pathname}`;
+  const title = "National Qualifying Examination for School Heads - NQESH Reviewer";
+  const description = "Prepare for the National Qualifying Examination for School Heads (NQESH) with practice questions across all domains. Track your progress and improve your scores.";
+
+  return [
+    { title: title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:url", content: fullUrl },
+    { property: "og:type", content: "website" },
+    { property: "og:image", content: `${domain}/og-image.png` },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: "NQESH Reviewer Home Page" },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:site", content: "@nqeshreviewer" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: `${domain}/twitter-image.png` },
+    { rel: "canonical", href: fullUrl },
+    {
+      "script:ld+json": organization({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "url": "https://nqesh.com",
+        "sameAs": [
+          "https://facebook.com/nqeshreviewer",
+          "https://twitter.com/nqeshreviewer"
+        ],
+        "logo": "https://nqesh.com/logo.png",
+        "name": "NQESH Reviewer",
+        "description": "Comprehensive preparation platform for the National Qualifying Examination for School Heads in the Philippines",
+        "email": "support@nqesh.com",
+        "telephone": "+63-926-021-1602"
+      })
+    }
+  ];
+};
 
 export async function loader() {
   // First, fetch categories normally for React Router (initial load)
