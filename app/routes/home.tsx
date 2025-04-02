@@ -107,7 +107,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </CardContent>
         </Card>
 
-        <h2 className="text-sm font-medium mb-3 px-1">Review by Domain</h2>
+        <h2 className="text-sm font-medium mb-3 px-1">Select a Category</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -153,7 +153,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </CardContent>
       </Card>
 
-      <h2 className="text-sm font-medium mb-3 px-1">Review by Domain</h2>
+      <h2 className="text-sm font-medium mb-3 px-1">Select a Category</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {displayCategories.map((category) => (
