@@ -38,6 +38,7 @@ import MostChallengingQuestionsTable from "../components/MostChallengingQuestion
 import CategoryPerformanceTrendChart from '../components/CategoryPerformanceTrendChart';
 import QuizScoreVsTimeScatterPlot from '../components/QuizScoreVsTimeScatterPlot';
 import PracticeFrequencyChart from '../components/PracticeFrequencyChart';
+import DataInterpretationGuide from '../components/DataInterpretationGuide';
 
 export const meta: Route.MetaFunction = ({ location }) => {
     const domain = "https://nqesh.com";
@@ -279,6 +280,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                         <TabsTrigger value="time">Time Analysis</TabsTrigger>
                         <TabsTrigger value="progress">Progress</TabsTrigger>
                         <TabsTrigger value="insights">Insights</TabsTrigger>
+                        <TabsTrigger value="guide">Guide</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="overview">
@@ -537,6 +539,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                 <AccuracyVsTimeChart />
                             </QueryErrorBoundary>
                         </div>
+                    </TabsContent>
+
+                    <TabsContent value="guide">
+                        <DataInterpretationGuide />
                     </TabsContent>
                 </Tabs>
             </div>
