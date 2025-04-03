@@ -35,6 +35,9 @@ import FirstVsOverallChart from "../components/FirstVsOverallChart";
 import QuizScoreDistribution from "../components/QuizScoreDistribution";
 import TimeSpentDistributionChart from "../components/TimeSpentDistributionChart";
 import MostChallengingQuestionsTable from "../components/MostChallengingQuestionsTable";
+import CategoryPerformanceTrendChart from '../components/CategoryPerformanceTrendChart';
+import QuizScoreVsTimeScatterPlot from '../components/QuizScoreVsTimeScatterPlot';
+import PracticeFrequencyChart from '../components/PracticeFrequencyChart';
 
 export const meta: Route.MetaFunction = ({ location }) => {
     const domain = "https://nqesh.com";
@@ -494,24 +497,44 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                                 </CardHeader>
                             </Card>
 
+                            {/* 1. Most Actionable: Specific Questions to Review */}
                             <QueryErrorBoundary>
                                 <MostChallengingQuestionsTable />
                             </QueryErrorBoundary>
 
+                            {/* 2. Study Habits: Consistency */}
                             <QueryErrorBoundary>
-                                <AccuracyVsTimeChart />
+                                <PracticeFrequencyChart />
                             </QueryErrorBoundary>
 
-                            <QueryErrorBoundary>
-                                <FirstVsOverallChart />
-                            </QueryErrorBoundary>
-
+                            {/* 3. Overall Performance: Score Spread */}
                             <QueryErrorBoundary>
                                 <QuizScoreDistribution />
                             </QueryErrorBoundary>
 
+                            {/* 4. Category Improvement: Long-Term View */}
+                            <QueryErrorBoundary>
+                                <FirstVsOverallChart />
+                            </QueryErrorBoundary>
+
+                            {/* 5. Category Improvement: Specific Trend (Requires Interaction) */}
+                            <QueryErrorBoundary>
+                                <CategoryPerformanceTrendChart />
+                            </QueryErrorBoundary>
+
+                            {/* 6. Time Analysis: General Quiz Duration */}
                             <QueryErrorBoundary>
                                 <TimeSpentDistributionChart />
+                            </QueryErrorBoundary>
+
+                            {/* 7. Time Analysis: Quiz Score vs. Total Time */}
+                            <QueryErrorBoundary>
+                                <QuizScoreVsTimeScatterPlot />
+                            </QueryErrorBoundary>
+
+                            {/* 8. Time Analysis: Granular Per-Question View */}
+                            <QueryErrorBoundary>
+                                <AccuracyVsTimeChart />
                             </QueryErrorBoundary>
                         </div>
                     </TabsContent>
