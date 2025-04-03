@@ -33,6 +33,8 @@ import { DataManagementCard } from "../components/DataManagementCard";
 import AccuracyVsTimeChart from "../components/AccuracyVsTimeChart";
 import FirstVsOverallChart from "../components/FirstVsOverallChart";
 import QuizScoreDistribution from "../components/QuizScoreDistribution";
+import TimeSpentDistributionChart from "../components/TimeSpentDistributionChart";
+import MostChallengingQuestionsTable from "../components/MostChallengingQuestionsTable";
 
 export const meta: Route.MetaFunction = ({ location }) => {
     const domain = "https://nqesh.com";
@@ -493,6 +495,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                             </Card>
 
                             <QueryErrorBoundary>
+                                <MostChallengingQuestionsTable />
+                            </QueryErrorBoundary>
+
+                            <QueryErrorBoundary>
                                 <AccuracyVsTimeChart />
                             </QueryErrorBoundary>
 
@@ -502,6 +508,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
                             <QueryErrorBoundary>
                                 <QuizScoreDistribution />
+                            </QueryErrorBoundary>
+
+                            <QueryErrorBoundary>
+                                <TimeSpentDistributionChart />
                             </QueryErrorBoundary>
                         </div>
                     </TabsContent>

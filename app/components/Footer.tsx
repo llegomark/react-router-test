@@ -86,7 +86,7 @@ export function Footer() {
                                 to="/copyright"
                                 className="text-muted-foreground hover:text-foreground text-xs"
                             >
-                                Copyright
+                                Copyright Notice
                             </Link>
                             <Link
                                 to="/privacy"
